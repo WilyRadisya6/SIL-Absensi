@@ -18,9 +18,11 @@ function data() {
         const html = document.querySelector('html');
         if (JSON.parse(window.localStorage.getItem('dark')) == true) {
             html.classList.add('dark');
+            html.setAttribute('data-theme', 'dark'); // Sinkronisasi dengan DaisyUI
             window.localStorage.setItem('theme', 'dark');
         } else {
             html.classList.remove('dark');
+            html.setAttribute('data-theme', 'light'); // Sinkronisasi dengan DaisyUI
             window.localStorage.setItem('theme', 'light');
         }
     }

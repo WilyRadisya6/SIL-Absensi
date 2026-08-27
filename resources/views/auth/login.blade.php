@@ -1,47 +1,79 @@
 <x-guest-layout>
+    <!-- Header -->
+    <div class="form-card-header">
+        <h2>Selamat Datang</h2>
+        <p>Masuk ke sistem presensi <strong style="color: #15803d;">PT. Sinkona Indonesia Lestari</strong></p>
+    </div>
+
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    @if (session('status'))
+        <div style="background: #dcfce7; border: 1px solid #86efac; color: #15803d; padding: 0.75rem 1rem; border-radius: 0.625rem; font-size: 0.875rem; margin-bottom: 1.25rem;">
+            {{ session('status') }}
+        </div>
+    @endif
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <!-- NIK -->
+        <div style="margin-bottom: 1.25rem;">
+            <label class="sil-label" for="login_id">NIK</label>
+            <input
+                id="login_id"
+                type="text"
+                name="login_id"
+                value="{{ old('login_id') }}"
+                class="sil-input"
+                placeholder="Masukkan NIK Anda"
+                required
+                autofocus
+                autocomplete="username"
+            />
+            @error('login_id')
+                <div style="color: #dc2626; font-size: 0.78rem; margin-top: 0.35rem; font-weight: 500;">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div style="margin-bottom: 1rem;">
+            <label class="sil-label" for="password">Password</label>
+            <input
+                id="password"
+                type="password"
+                name="password"
+                class="sil-input"
+                placeholder="Masukkan password"
+                required
+                autocomplete="current-password"
+            />
+            @error('password')
+                <div style="color: #dc2626; font-size: 0.78rem; margin-top: 0.35rem; font-weight: 500;">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+        <!-- Remember Me & Forgot -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+            <label style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;">
+                <input id="remember_me" type="checkbox" class="sil-checkbox" name="remember">
+                <span style="font-size: 0.82rem; color: #6b7280; font-weight: 500;">Ingat saya</span>
             </label>
-        </div>
 
-        <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
+                <a href="{{ route('password.request') }}" class="forgot-link">
+                    Lupa password?
                 </a>
             @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
         </div>
+
+        <hr class="sil-divider">
+
+        <!-- Login Button -->
+        <button type="submit" class="sil-btn-login">
+            Masuk
+        </button>
     </form>
 </x-guest-layout>

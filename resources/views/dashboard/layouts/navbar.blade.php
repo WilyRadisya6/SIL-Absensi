@@ -17,7 +17,7 @@
                     <span class="ease leading-5.6 absolute z-50 -ml-px flex h-full items-center whitespace-nowrap rounded-lg rounded-br-none rounded-tr-none border border-r-0 border-transparent bg-transparent px-2.5 py-2 text-center text-sm font-normal text-slate-500 transition-all">
                         <i class="ri-search-line"></i>
                     </span>
-                    <input type="text" class="focus:shadow-primary-outline ease w-1/100 leading-5.6 dark:bg-slate-850 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 pl-9 pr-3 text-sm text-gray-700 transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:transition-shadow dark:text-white" placeholder="Type here..." />
+                    <input type="text" class="focus:shadow-primary-outline ease w-1/100 leading-5.6 dark:bg-slate-850 relative -ml-px block min-w-0 flex-auto rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 pl-9 pr-3 text-sm text-gray-700 transition-all placeholder:text-gray-500 focus:border-green-600 focus:outline-none focus:transition-shadow dark:text-white" placeholder="Type here..." />
                 </div>
             </div>
             <ul class="md-max:w-full mb-0 flex list-none flex-row justify-end pl-0">

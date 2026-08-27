@@ -95,31 +95,31 @@
                             <div class="md:flex-0 w-full max-w-full shrink-0 px-3 md:w-6/12">
                                 <div class="mb-4">
                                     <label for="nik" class="mb-2 ml-1 inline-block text-xs font-bold text-slate-700 dark:text-white/80">NIK</label>
-                                    <input type="text" name="nik" value="{{ $karyawan->nik }}" class="focus:shadow-primary-outline dark:bg-slate-850 leading-5.6 ease block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 text-sm font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none dark:text-white" readonly />
+                                    <input type="text" name="nik" value="{{ $karyawan->nik }}" class="focus:shadow-primary-outline dark:bg-slate-850 leading-5.6 ease block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 text-sm font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-green-600 focus:outline-none dark:text-white" readonly />
                                 </div>
                             </div>
                             <div class="md:flex-0 w-full max-w-full shrink-0 px-3 md:w-6/12">
                                 <div class="mb-4">
                                     <label for="email" class="mb-2 ml-1 inline-block text-xs font-bold text-slate-700 dark:text-white/80">Email</label>
-                                    <input type="email" name="email" value="{{ $karyawan->email }}" class="focus:shadow-primary-outline dark:bg-slate-850 leading-5.6 ease block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 text-sm font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none dark:text-white" readonly />
+                                    <input type="email" name="email" value="{{ $karyawan->email }}" class="focus:shadow-primary-outline dark:bg-slate-850 leading-5.6 ease block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 text-sm font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-green-600 focus:outline-none dark:text-white" readonly />
                                 </div>
                             </div>
                             <div class="md:flex-0 w-full max-w-full shrink-0 px-3 md:w-6/12">
                                 <div class="mb-4">
                                     <label for="nama_lengkap" class="mb-2 ml-1 inline-block text-xs font-bold text-slate-700 dark:text-white/80">Nama Lengkap</label>
-                                    <input type="text" name="nama_lengkap" value="{{ $karyawan->nama_lengkap }}" class="focus:shadow-primary-outline dark:bg-slate-850 leading-5.6 ease block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 text-sm font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none dark:text-white" />
+                                    <input type="text" name="nama_lengkap" value="{{ $karyawan->nama_lengkap }}" class="focus:shadow-primary-outline dark:bg-slate-850 leading-5.6 ease block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 text-sm font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-green-600 focus:outline-none dark:text-white" />
                                 </div>
                             </div>
                             <div class="md:flex-0 w-full max-w-full shrink-0 px-3 md:w-6/12">
                                 <div class="mb-4">
                                     <label for="telepon" class="mb-2 ml-1 inline-block text-xs font-bold text-slate-700 dark:text-white/80">Telepon</label>
-                                    <input type="text" name="telepon" value="{{ $karyawan->telepon }}" class="focus:shadow-primary-outline dark:bg-slate-850 leading-5.6 ease block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 text-sm font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none dark:text-white" />
+                                    <input type="text" name="telepon" value="{{ $karyawan->telepon }}" class="focus:shadow-primary-outline dark:bg-slate-850 leading-5.6 ease block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 text-sm font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-green-600 focus:outline-none dark:text-white" />
                                 </div>
                             </div>
                             <div class="md:flex-0 w-full max-w-full shrink-0 px-3 md:w-6/12">
                                 <div class="mb-4">
                                     <label for="password" class="mb-2 ml-1 inline-block text-xs font-bold text-slate-700 dark:text-white/80">Password</label>
-                                    <input type="password" name="password" class="focus:shadow-primary-outline dark:bg-slate-850 leading-5.6 ease block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 text-sm font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-blue-500 focus:outline-none dark:text-white" />
+                                    <input type="password" name="password" class="focus:shadow-primary-outline dark:bg-slate-850 leading-5.6 ease block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 text-sm font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-green-600 focus:outline-none dark:text-white" />
                                 </div>
                             </div>
                         </div>

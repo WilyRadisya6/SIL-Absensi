@@ -13,7 +13,9 @@
                 <th>Hari</th>
                 <th>Tanggal</th>
                 <th>Jam Masuk</th>
+                <th>Foto Masuk</th>
                 <th>Jam Keluar</th>
+                <th>Foto Keluar</th>
             </tr>
         </thead>
         <tbody>
@@ -22,11 +24,34 @@
                     <td class="font-bold">{{ $value+1 }}</td>
                     <td class="text-slate-500 dark:text-slate-300">{{ date("l", strtotime($item->tanggal_presensi)) }}</td>
                     <td class="text-slate-500 dark:text-slate-300">{{ date("d-m-Y", strtotime($item->tanggal_presensi)) }}</td>
-                    <td class="{{ $item->jam_masuk < "08:00" ? "text-success" : "text-error" }}">{{ date("H:i:s", strtotime($item->jam_masuk)) }}</td>
+                    <td class="{{ $item->jam_masuk < '08:00' ? 'text-success' : 'text-error' }}">{{ date('H:i:s', strtotime($item->jam_masuk)) }}</td>
+                    <td>
+                        @if($item->foto_masuk)
+                        <div class="avatar">
+                            <div class="w-16 rounded">
+                                <img src="{{ asset("storage/unggah/presensi/$item->foto_masuk") }}" alt="Foto Masuk" />
+                            </div>
+                        </div>
+                        @else
+                        -
+                        @endif
+                    </td>
                     @if ($item != null && $item->jam_keluar != null)
-                        <td class="{{ $item->jam_keluar > "16:00" ? "text-success" : "text-error" }}">{{ date("H:i:s", strtotime($item->jam_keluar)) }}</td>
+                        <td class="{{ $item->jam_keluar > '16:00' ? 'text-success' : 'text-error' }}">{{ date('H:i:s', strtotime($item->jam_keluar)) }}</td>
+                        <td>
+                            @if($item->foto_keluar)
+                            <div class="avatar">
+                                <div class="w-16 rounded">
+                                    <img src="{{ asset("storage/unggah/presensi/$item->foto_keluar") }}" alt="Foto Keluar" />
+                                </div>
+                            </div>
+                            @else
+                            -
+                            @endif
+                        </td>
                     @else
                         <td>Belum Presensi</td>
+                        <td>-</td>
                     @endif
                 </tr>
             @endforeach

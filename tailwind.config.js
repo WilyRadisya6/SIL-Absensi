@@ -23,4 +23,18 @@ export default {
         forms,
         require("daisyui"),
     ],
+    
+    daisyui: {
+        themes: [
+            "light",
+            {
+                dark: {
+                    ...require("daisyui/src/theming/themes")["dark"],
+                    "base-100": "#051139", // Matches Argon's dark:bg-slate-900
+                    "base-200": "#111c44", // Matches Argon's dark:bg-slate-850
+                    "base-300": "#1a2352", // Slightly lighter for contrast
+                },
+            },
+        ],
+    },
 };

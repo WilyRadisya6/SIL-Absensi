@@ -9,7 +9,7 @@
 
     <div class="container mx-auto px-5 pt-5">
         <div>
-            <form action="{{ route("admin.administrasi-presensi") }}" method="get" enctype="multipart/form-data" class="my-3">
+            <form action="{{ route('admin.administrasi-presensi') }}" method="get" enctype="multipart/form-data" class="my-3">
                 <div class="flex w-full flex-wrap gap-2 md:flex-nowrap items-end">
                     <label class="form-control w-full max-w-xs">
                         <div class="label">

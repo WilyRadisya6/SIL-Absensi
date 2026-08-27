@@ -45,7 +45,7 @@ class PresensiController extends Controller
         $longtitudeUser = $lokasiUser[1];
 
         $jarak = round($this->validation_radius_presensi($langtitudeKantor, $longtitudeKantor, $langtitudeUser, $longtitudeUser), 2);
-        if ($jarak > 33) {
+        if ($jarak > $lokasiKantor->radius) {
             return response()->json([
                 'status' => 500,
                 'success' => false,
@@ -58,10 +58,23 @@ class PresensiController extends Controller
         $imageParts = explode(";base64", $image);
         $imageBase64 = base64_decode($imageParts[1]);
 
-        $fileName = $folderName . ".png";
+        $fileName = $folderName . ".jpg"; // Mengubah format ke JPG untuk kompresi
         $file = $folderPath . $fileName;
 
+        $cekPresensi = DB::table('presensi')
+            ->where('nik', $nik)
+            ->where('tanggal_presensi', $tglPresensi)
+            ->first();
+
         if ($jenisPresensi == "masuk") {
+            if ($cekPresensi) {
+                return response()->json([
+                    'status' => 500,
+                    'success' => false,
+                    'message' => "Anda sudah melakukan presensi masuk hari ini",
+                ]);
+            }
+            
             $data = [
                 "nik" => $nik,
                 "tanggal_presensi" => $tglPresensi,
@@ -73,6 +86,20 @@ class PresensiController extends Controller
             ];
             $store = DB::table('presensi')->insert($data);
         } elseif ($jenisPresensi == "keluar") {
+            if (!$cekPresensi) {
+                return response()->json([
+                    'status' => 500,
+                    'success' => false,
+                    'message' => "Anda belum melakukan presensi masuk",
+                ]);
+            } elseif ($cekPresensi->jam_keluar != null) {
+                return response()->json([
+                    'status' => 500,
+                    'success' => false,
+                    'message' => "Anda sudah melakukan presensi keluar hari ini",
+                ]);
+            }
+
             $data = [
                 "jam_keluar" => $jam,
                 "foto_keluar" => $fileName,
@@ -86,7 +113,19 @@ class PresensiController extends Controller
         }
 
         if ($store) {
-            Storage::put($file, $imageBase64);
+            // Kompresi gambar menggunakan native PHP GD untuk menghemat storage
+            $img = imagecreatefromstring($imageBase64);
+            if ($img !== false) {
+                ob_start();
+                // Kualitas 60% akan menurunkan ukuran file 80-90% dengan kualitas yang masih bagus
+                imagejpeg($img, null, 60); 
+                $compressedImage = ob_get_clean();
+                Storage::put($file, $compressedImage);
+                imagedestroy($img);
+            } else {
+                // Fallback jika kompresi gagal
+                Storage::put($file, $imageBase64);
+            }
         } else {
             return response()->json([
                 'status' => 500,
@@ -234,11 +273,18 @@ class PresensiController extends Controller
 
     public function viewLokasi(Request $request)
     {
+        $tanggal = $request->tanggal_presensi ?: Carbon::now()->format('Y-m-d');
         if ($request->tipe == "lokasi_masuk") {
-            $data = DB::table('presensi')->where('nik', $request->nik)->first('lokasi_masuk');
+            $data = DB::table('presensi')
+                ->where('nik', $request->nik)
+                ->where('tanggal_presensi', $tanggal)
+                ->first('lokasi_masuk');
             return $data;
         } elseif ($request->tipe == "lokasi_keluar") {
-            $data = DB::table('presensi')->where('nik', $request->nik)->first('lokasi_keluar');
+            $data = DB::table('presensi')
+                ->where('nik', $request->nik)
+                ->where('tanggal_presensi', $tanggal)
+                ->first('lokasi_keluar');
             return $data;
         }
     }
@@ -258,6 +304,11 @@ class PresensiController extends Controller
             ->with('departemen')
             ->where('nik', $request->karyawan)
             ->first();
+            
+        if (!$karyawan) {
+            return redirect()->back()->with('error', 'Karyawan tidak valid atau belum dipilih!');
+        }
+
         $riwayatPresensi = DB::table("presensi")
             ->where('nik', $request->karyawan)
             ->whereMonth('tanggal_presensi', Carbon::make($bulan)->format('m'))
@@ -274,8 +325,9 @@ class PresensiController extends Controller
     {
         $title = 'Laporan Presensi Semua Karyawan';
         $bulan = $request->bulan;
+        $jamKerja = \App\Models\KonfigurasiJamKerja::first() ?? (object)['jam_masuk' => '08:00:00', 'jam_pulang' => '16:00:00'];
         $riwayatPresensi = DB::table("presensi as p")
-            ->join('karyawan as k', 'p.nik', '=', 'k.nik')
+            ->join('karyawan as k', 'k.nik', '=', 'p.nik')
             ->join('departemen as d', 'k.departemen_id', '=', 'd.id')
             ->whereMonth('tanggal_presensi', Carbon::make($bulan)->format('m'))
             ->whereYear('tanggal_presensi', Carbon::make($bulan)->format('Y'))
@@ -285,7 +337,7 @@ class PresensiController extends Controller
                 'k.jabatan as jabatan_karyawan',
                 'd.nama as nama_departemen'
             )
-            ->selectRaw("COUNT(p.nik) as total_kehadiran, SUM(IF (jam_masuk > '08:00',1,0)) as total_terlambat")
+            ->selectRaw("COUNT(p.nik) as total_kehadiran, SUM(IF (jam_masuk > '{$jamKerja->jam_masuk}',1,0)) as total_terlambat")
             ->groupBy(
                 'p.nik',
                 'k.nama_lengkap',

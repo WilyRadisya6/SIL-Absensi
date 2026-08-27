@@ -1,57 +1,65 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800">
-            {{ __("Dashboard") }}
-        </h2>
+        <div>
+            <h2 class="text-xl font-bold" style="color: #15803d;">Dashboard</h2>
+            <p class="text-sm text-gray-500 mt-0.5">Selamat datang, {{ Auth::user()->name }}. Berikut ringkasan data hari ini.</p>
+        </div>
     </x-slot>
 
-    <div class="px-5 pt-5">
-        <div class="w-full flex flex-wrap xl:flex-nowrap justify-center gap-3">
-            <div class="card card-side shadow-xl bg-white text-gray-800 px-3 w-full md:w-1/4 lg:w-1/5">
-                <div class="flex items-center">
-                    <i class="ri-team-line text-5xl md:text-3xl lg:text-5xl"></i>
-                    <div class="card-body">
-                        <h2 class="card-title md:text-base">{{ $totalKaryawan }}</h2>
-                        <p class="text-lg md:text-sm">Total Karyawan</p>
-                    </div>
+    <div class="px-5 pt-6">
+        <div class="w-full flex flex-wrap xl:flex-nowrap justify-center gap-4">
+
+            <div class="sil-stat-card w-full md:w-1/4 lg:w-1/5">
+                <div class="icon-wrap">
+                    <i class="ri-team-line"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ $totalKaryawan }}</div>
+                    <div class="stat-label">Total Karyawan</div>
                 </div>
             </div>
-            <div class="card card-side shadow-xl bg-white text-gray-800 px-3 w-full md:w-1/4 lg:w-1/5">
-                <div class="flex items-center">
-                    <i class="ri-fingerprint-fill text-5xl md:text-3xl lg:text-5xl"></i>
-                    <div class="card-body">
-                        <h2 class="card-title md:text-base">{{ $rekapPresensi->jml_kehadiran }}</h2>
-                        <p class="text-lg md:text-sm">Karyawan Hadir</p>
-                    </div>
+
+            <div class="sil-stat-card w-full md:w-1/4 lg:w-1/5">
+                <div class="icon-wrap">
+                    <i class="ri-fingerprint-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ $rekapPresensi->jml_kehadiran }}</div>
+                    <div class="stat-label">Karyawan Hadir</div>
                 </div>
             </div>
-            <div class="card card-side shadow-xl bg-white text-gray-800 px-3 w-full md:w-1/4 lg:w-1/5">
-                <div class="flex items-center">
-                    <i class="ri-hospital-line text-5xl md:text-3xl lg:text-5xl"></i>
-                    <div class="card-body">
-                        <h2 class="card-title md:text-base">{{ $rekapPengajuanPresensi->jml_sakit }}</h2>
-                        <p class="text-lg md:text-sm">Karyawan Sakit</p>
-                    </div>
+
+            <div class="sil-stat-card w-full md:w-1/4 lg:w-1/5">
+                <div class="icon-wrap">
+                    <i class="ri-hospital-line"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ $rekapPengajuanPresensi->jml_sakit }}</div>
+                    <div class="stat-label">Karyawan Sakit</div>
                 </div>
             </div>
-            <div class="card card-side shadow-xl bg-white text-gray-800 px-3 w-full md:w-1/4 lg:w-1/5">
-                <div class="flex items-center">
-                    <i class="ri-hospital-line text-5xl md:text-3xl lg:text-5xl"></i>
-                    <div class="card-body">
-                        <h2 class="card-title md:text-base">{{ $rekapPengajuanPresensi->jml_izin }}</h2>
-                        <p class="text-lg md:text-sm">Karyawan Izin</p>
-                    </div>
+
+            <div class="sil-stat-card w-full md:w-1/4 lg:w-1/5">
+                <div class="icon-wrap">
+                    <i class="ri-file-list-3-line"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ $rekapPengajuanPresensi->jml_izin }}</div>
+                    <div class="stat-label">Karyawan Izin</div>
                 </div>
             </div>
-            <div class="card card-side shadow-xl bg-white text-gray-800 px-3 w-full md:w-1/4 lg:w-1/5">
-                <div class="flex items-center">
-                    <i class="ri-time-line text-5xl md:text-3xl lg:text-5xl"></i>
-                    <div class="card-body">
-                        <h2 class="card-title md:text-base">{{ $rekapPresensi->jml_terlambat }}</h2>
-                        <p class="text-lg md:text-sm">Karyawan Terlambat</p>
-                    </div>
+
+            <div class="sil-stat-card w-full md:w-1/4 lg:w-1/5">
+                <div class="icon-wrap">
+                    <i class="ri-time-line"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ $rekapPresensi->jml_terlambat }}</div>
+                    <div class="stat-label">Karyawan Terlambat</div>
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>
+

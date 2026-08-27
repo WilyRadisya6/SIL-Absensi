@@ -32,10 +32,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            DepartemenSeeder::class,
-            KaryawanSeeder::class,
-            PresensiSeeder::class,
-            PengajuanPresensiSeeder::class,
+            DepartemenSeeder::class, // Departemen mungkin masih dibutuhkan sebagai master data
+            // KaryawanSeeder::class, // Data dummy karyawan
+            // PresensiSeeder::class, // Data dummy presensi
+            // PengajuanPresensiSeeder::class, // Data dummy izin
         ]);
     }
 }

@@ -93,20 +93,20 @@
         <table style="width: 100%">
             <tr>
                 <td style="width: 30px;">
-                    <img src="{{ public_path('img/team-2.jpg') }}" alt="logo" width="100" height="100" style="border-radius: 21px" />
+                    <img src="{{ public_path('img/apple-icon.png') }}" alt="logo" width="90" height="90" style="border-radius: 12px; margin-right: 15px;" />
                 </td>
                 <td>
-                    <span class="title" style="margin-left: 0.5rem;">
+                    <span class="title" style="margin-left: 0.5rem; font-size: 16px;">
                         {{ strtoupper($title) }} <br>
                     </span>
-                    <span class="title" style="margin-left: 0.5rem;">
-                        PERIODE {{ strtoupper(\Carbon\Carbon::make($bulan)->format("F")) }} TAHUN {{ \Carbon\Carbon::make($bulan)->format("Y") }} <br>
+                    <span class="title" style="margin-left: 0.5rem; font-size: 14px;">
+                        PERIODE {{ strtoupper(\Carbon\Carbon::make($bulan)->locale('id')->isoFormat("MMMM")) }} TAHUN {{ \Carbon\Carbon::make($bulan)->format("Y") }} <br>
                     </span>
-                    <span class="title" style="margin-left: 0.5rem;">
-                        PT ABCD DEFG <br>
+                    <span class="title" style="margin-left: 0.5rem; font-size: 16px; color: #15803d;">
+                        PT. SINKONA INDONESIA LESTARI <br>
                     </span>
-                    <span style="margin-left: 0.5rem;">
-                        <i>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Accusantium, vero.</i>
+                    <span style="margin-left: 0.5rem; font-size: 12px; color: #666;">
+                        <i>Jl. Raya Ciater, Kec. Serpong, Kota Tangerang Selatan, Banten</i>
                     </span>
                 </td>
             </tr>
@@ -148,17 +148,17 @@
         <table class="pengesahan-atasan">
             <tr class="tempat">
                 <td colspan="2">
-                    Tenetur Nostrum, {{ \Carbon\Carbon::now()->format("d F Y") }}
+                    Subang, {{ \Carbon\Carbon::now()->locale('id')->isoFormat("D MMMM Y") }}
                 </td>
             </tr>
             <tr class="atasan">
                 <td>
-                    <u>Lorem Ipsum Dolor</u> <br>
+                    <u>Wily Radisya</u> <br>
                     <i><b>HRD Manager</b></i>
                 </td>
                 <td>
-                    <u>Adipisicing Elit Unde</u> <br>
-                    <i><b>Direktur</b></i>
+                    <u>Jane Doe</u> <br>
+                    <i><b>Direktur Utama</b></i>
                 </td>
             </tr>
         </table>

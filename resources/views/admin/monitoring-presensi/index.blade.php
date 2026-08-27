@@ -44,7 +44,7 @@
                             <td class="text-slate-500 dark:text-slate-300">
                                 <div class="avatar">
                                     <div class="w-24 rounded">
-                                        <label for="view_modal" class="cursor-pointer" onclick="return viewLokasi('lokasi_masuk', '{{ $item->nik }}')">
+                                        <label for="view_modal" class="cursor-pointer" onclick="return viewLokasi('lokasi_masuk', '{{ $item->nik }}', '{{ $item->tanggal_presensi }}', '{{ asset("storage/unggah/presensi/$item->foto_masuk") }}')">
                                             <img src="{{ asset("storage/unggah/presensi/$item->foto_masuk") }}" alt="{{ $item->foto_masuk }}" />
                                         </label>
                                     </div>
@@ -61,7 +61,7 @@
                                 <div class="avatar">
                                     <div class="w-24 rounded">
                                         @if ($item->foto_keluar)
-                                            <label for="view_modal" class="cursor-pointer" onclick="return viewLokasi('lokasi_keluar', '{{ $item->nik }}')">
+                                            <label for="view_modal" class="cursor-pointer" onclick="return viewLokasi('lokasi_keluar', '{{ $item->nik }}', '{{ $item->tanggal_presensi }}', '{{ asset("storage/unggah/presensi/$item->foto_keluar") }}')">
                                                 <img src="{{ asset("storage/unggah/presensi/$item->foto_keluar") }}" alt="{{ $item->foto_keluar }}" />
                                             </label>
                                         @else
@@ -107,6 +107,9 @@
                     <i class="ri-close-large-fill"></i>
                 </label>
             </div>
+            <div class="mb-4 flex justify-center">
+                <img id="modal-foto" src="" alt="Foto Presensi" class="max-h-60 rounded-lg shadow-md object-cover" />
+            </div>
             <div>
                 <label class="form-control w-full">
                     <div class="label">
@@ -144,14 +147,19 @@
             });
         @endif
 
+        let viewMap;
+
         function maps(latitude, longitude) {
-            let map = L.map('lokasi-map').setView([latitude, longitude], 17);
+            if (viewMap != undefined) {
+                viewMap.remove();
+            }
+            viewMap = L.map('lokasi-map').setView([latitude, longitude], 17);
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }).addTo(map);
+            }).addTo(viewMap);
 
-            let marker = L.marker([latitude, longitude]).addTo(map);
+            let marker = L.marker([latitude, longitude]).addTo(viewMap);
             marker.bindPopup("<b>Anda berada di sini</b>").openPopup();
 
             let circle = L.circle([{{ $lokasiKantor->latitude }}, {{ $lokasiKantor->longitude }}], {
@@ -159,10 +167,18 @@
                 fillColor: '#f03',
                 fillOpacity: 0.5,
                 radius: {{ $lokasiKantor->radius }}
-            }).addTo(map);
+            }).addTo(viewMap);
+
+            // Fix modal leaflet grey map bug
+            setTimeout(function() {
+                viewMap.invalidateSize();
+            }, 300);
         }
 
-        function viewLokasi(tipe, nik) {
+        function viewLokasi(tipe, nik, tanggal, fotoUrl) {
+            // Update photo
+            $("#modal-foto").attr("src", fotoUrl);
+
             // Loading effect start
             let loading = `<span class="loading loading-dots loading-md text-purple-600"></span>`;
             $("#loading_edit1").html(loading);
@@ -174,6 +190,7 @@
                     "_token": "{{ csrf_token() }}",
                     "tipe": tipe,
                     "nik": nik,
+                    "tanggal_presensi": tanggal,
                 },
                 success: function(data) {
                     // console.log(data);

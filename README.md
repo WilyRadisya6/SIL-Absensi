@@ -25,7 +25,7 @@ Follow the steps below to clone and run the project in your local environment:
 1. Clone repository:
 
     ```bash
-    git clone https://github.com/Akbarwp/Laravel-Presensi.git
+    git clone https://github.com/WilyRadisya6/SIL-Absensi.git
     ```
 
 2. Install dependencies use Composer and NPM:

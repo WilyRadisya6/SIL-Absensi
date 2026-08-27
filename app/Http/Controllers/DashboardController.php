@@ -12,6 +12,8 @@ class DashboardController extends Controller
     public function index()
     {
         $title = "Dashboard";
+        
+        $jamKerja = \App\Models\KonfigurasiJamKerja::first() ?? (object)['jam_masuk' => '08:00:00', 'jam_pulang' => '16:00:00'];
 
         $hariIni = Carbon::now()->format("Y-m-d");
         $user = Auth::guard('karyawan')->user();
@@ -29,7 +31,7 @@ class DashboardController extends Controller
             ->paginate(10);
 
         $rekapPresensi = DB::table("presensi")
-            ->selectRaw("COUNT(nik) as jml_kehadiran, SUM(IF (jam_masuk > '08:00',1,0)) as jml_terlambat")
+            ->selectRaw("COUNT(nik) as jml_kehadiran, SUM(IF (jam_masuk > '{$jamKerja->jam_masuk}',1,0)) as jml_terlambat")
             ->where('nik', $user->nik)
             // Cara 2 mencari tanggal
             ->whereRaw("MONTH(tanggal_presensi)='" . date('m') . "'")
@@ -50,7 +52,7 @@ class DashboardController extends Controller
             ->orderBy('jam_masuk', 'asc')
             ->paginate(10);
 
-        return view("dashboard.index", compact("title", "presensiHariIni", "riwayatPresensi", "rekapPresensi", "rekapPengajuanPresensi", "leaderboard"));
+        return view("dashboard.index", compact("title", "presensiHariIni", "riwayatPresensi", "rekapPresensi", "rekapPengajuanPresensi", "leaderboard", "jamKerja"));
     }
 
     public function indexAdmin()
@@ -61,8 +63,10 @@ class DashboardController extends Controller
 
         $totalKaryawan = Karyawan::count();
 
+        $jamKerja = \App\Models\KonfigurasiJamKerja::first() ?? (object)['jam_masuk' => '08:00:00', 'jam_pulang' => '16:00:00'];
+
         $rekapPresensi = DB::table("presensi")
-            ->selectRaw("COUNT(nik) as jml_kehadiran, SUM(IF (jam_masuk > '08:00',1,0)) as jml_terlambat")
+            ->selectRaw("COUNT(nik) as jml_kehadiran, SUM(IF (jam_masuk > '{$jamKerja->jam_masuk}',1,0)) as jml_terlambat")
             ->where('tanggal_presensi', $hariIni)
             ->first();
 

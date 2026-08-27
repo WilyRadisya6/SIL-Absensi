@@ -1,38 +1,27 @@
 @extends("dashboard.layouts.main")
 
 @section("css")
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
-        @media (max-width: 425px) {
-
-            #webcam-capture,
-            #webcam-capture video {
-                width: 300px !important;
-                height: 380px !important;
-                margin auto;
-                border-radius: 33px;
-            }
+        #webcam-capture {
+            margin: 0 auto 1.5rem auto !important;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            max-width: 100%;
         }
 
-        @media (min-width: 640px) {
-
-            #webcam-capture,
-            #webcam-capture video {
-                width: 480px !important;
-                height: 640px !important;
-                margin auto;
-                border-radius: 33px;
-            }
+        #webcam-capture video {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 640px;
+            border-radius: 24px;
+            object-fit: cover;
         }
 
-        @media (min-width: 768px) {
-
-            #webcam-capture,
+        @media (max-width: 768px) {
             #webcam-capture video {
-                width: 640px !important;
-                height: 480px !important;
-                margin auto;
-                border-radius: 33px;
+                height: 400px !important; /* Provide a good portrait height on mobile */
             }
         }
     </style>
@@ -40,7 +29,6 @@
 
 @section("js")
     <script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js" integrity="sha512-dQIiHSl2hr3NWKKLycPndtpbh5iaHLo6MwrXm7F0FM5e+kL2U16oE9uIwPHUl6fQBeCthiEuV/rzP3MiAB8Vfw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
@@ -63,22 +51,6 @@
             let latitude = position.coords.latitude;
             let longitude = position.coords.longitude;
             lokasi.value = latitude + ", " + longitude;
-
-            let map = L.map('map').setView([latitude, longitude], 17);
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }).addTo(map);
-
-            let marker = L.marker([latitude, longitude]).addTo(map);
-            marker.bindPopup("<b>Anda berada di sini</b>").openPopup();
-
-            let circle = L.circle([{{ $lokasiKantor->latitude }}, {{ $lokasiKantor->longitude }}], {
-                color: 'red',
-                fillColor: '#f03',
-                fillOpacity: 0.5,
-                radius: {{ $lokasiKantor->radius }}
-            }).addTo(map);
         }
 
         function errorCallBack(position) {
@@ -89,9 +61,21 @@
         let notifikasi_presensi_keluar = document.getElementById('notifikasi_presensi_keluar');
         let notifikasi_presensi_gagal_radius = document.getElementById('notifikasi_presensi_gagal_radius');
         $("#take-presensi").click(function() {
+            let image = "";
             Webcam.snap(function(uri) {
                 image = uri;
             });
+
+            if (lokasi.value == "") {
+                Swal.fire({
+                    title: "Gagal",
+                    text: "Lokasi belum ditemukan! Pastikan GPS aktif dan berikan izin akses lokasi pada browser Anda.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+                return;
+            }
+
             $.ajax({
                 type: "POST",
                 url: "{{ route("karyawan.presensi.store") }}",
@@ -128,6 +112,14 @@
                             confirmButtonText: "OK"
                         });
                     }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        title: "Error",
+                        text: "Terjadi kesalahan sistem atau server (Cek koneksi & lokasi).",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
                 }
             });
         });
@@ -156,7 +148,7 @@
                                 <input type="text" name="presensi" id="presensi" value="masuk" hidden>
                                 <button id="take-presensi" class="btn btn-primary btn-wide text-white">
                                     <i class="ri-camera-line text-lg"></i>
-                                    Presensi Masuk
+                                    Check In
                                 </button>
                             @elseif ($presensiKaryawan->jam_keluar != null)
                                 <button id="take-presensi" class="btn btn-disabled btn-ghost btn-wide text-white dark:bg-slate-600/60 dark:text-white">
@@ -165,17 +157,12 @@
                                 </button>
                             @elseif ($presensiKaryawan != null)
                                 <input type="text" name="presensi" id="presensi" value="keluar" hidden>
-                                <button id="take-presensi" class="btn btn-secondary btn-wide text-white">
+                                <button id="take-presensi" class="btn btn-error btn-wide text-white">
                                     <i class="ri-camera-line text-lg"></i>
-                                    Presensi Keluar
+                                    Check Out
                                 </button>
                             @endif
                         </div>
-                    </div>
-                </div>
-                <div class="dark:bg-slate-850 dark:shadow-dark-xl relative mt-3 flex min-w-0 flex-col break-words rounded-2xl bg-white bg-clip-border shadow-xl">
-                    <div class="flex-auto p-4">
-                        <div id="map" class="mx-auto h-80 w-full"></div>
                     </div>
                 </div>
             </div>

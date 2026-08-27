@@ -27,8 +27,11 @@ Route::group([
     'prefix' => 'login-karyawan',
     'middleware' => ['guest', 'login-karyawan'],
 ], function () {
-    Route::get('/', [AuthKaryawanController::class, 'create'])->name('login.view');
-    Route::post('/', [AuthKaryawanController::class, 'store'])->name('login.auth');
+    Route::get('/', function () {
+        return redirect()->route('login');
+    })->name('login.view');
+    // Keeping the POST route just in case there are old forms, but pointing to the standard login route is better.
+    // However, the unified login handles it all on the main /login route.
 });
 
 Route::group([
@@ -36,7 +39,7 @@ Route::group([
     'middleware' => ['karyawan'],
 ], function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('karyawan.dashboard');
-    Route::post('/logout', [AuthKaryawanController::class, 'destroy'])->name('logout.auth');
+    Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->name('logout.auth');
 
     Route::group([
         'prefix' => 'presensi',
@@ -99,6 +102,9 @@ Route::group([
     Route::get('/lokasi/perbarui', [LokasiKantorController::class, 'edit'])->name('admin.lokasi-kantor.edit');
     Route::post('/lokasi/perbarui', [LokasiKantorController::class, 'update'])->name('admin.lokasi-kantor.update');
     Route::post('/lokasi/hapus', [LokasiKantorController::class, 'delete'])->name('admin.lokasi-kantor.delete');
+
+    Route::get('/jam-kerja', [\App\Http\Controllers\JamKerjaController::class, 'index'])->name('admin.jam-kerja');
+    Route::post('/jam-kerja', [\App\Http\Controllers\JamKerjaController::class, 'update'])->name('admin.jam-kerja.update');
 
     Route::get('/administrasi-presensi', [PresensiController::class, 'indexAdmin'])->name('admin.administrasi-presensi');
     Route::post('/administrasi-presensi/status', [PresensiController::class, 'persetujuanPresensi'])->name('admin.administrasi-presensi.persetujuan');
