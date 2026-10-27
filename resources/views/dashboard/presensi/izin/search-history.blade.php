@@ -30,12 +30,12 @@
                         @endif
                     </td>
                     <td class="text-slate-500 dark:text-slate-300">
-                        @if ($item->status_approved == 0)
-                            Pending
-                        @elseif ($item->status_approved == 1)
-                            Disetujui
+                        @if ($item->status_approved == 0 || $item->status_approved == 1)
+                            <div class="badge badge-neutral whitespace-nowrap dark:bg-slate-300 dark:text-slate-700">Menunggu Persetujuan</div>
                         @elseif ($item->status_approved == 2)
-                            Ditolak
+                            <div class="badge badge-success whitespace-nowrap">Disetujui</div>
+                        @elseif ($item->status_approved == 3)
+                            <div class="badge badge-error whitespace-nowrap">Ditolak</div>
                         @endif
                     </td>
                 </tr>

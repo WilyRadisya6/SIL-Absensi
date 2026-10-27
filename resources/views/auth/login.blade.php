@@ -7,9 +7,9 @@
 
     <!-- Session Status -->
     @if (session('status'))
-        <div style="background: #dcfce7; border: 1px solid #86efac; color: #15803d; padding: 0.75rem 1rem; border-radius: 0.625rem; font-size: 0.875rem; margin-bottom: 1.25rem;">
-            {{ session('status') }}
-        </div>
+    <div style="background: #dcfce7; border: 1px solid #86efac; color: #15803d; padding: 0.75rem 1rem; border-radius: 0.625rem; font-size: 0.875rem; margin-bottom: 1.25rem;">
+        {{ session('status') }}
+    </div>
     @endif
 
     <form method="POST" action="{{ route('login') }}">
@@ -27,12 +27,11 @@
                 placeholder="Masukkan NIK Anda"
                 required
                 autofocus
-                autocomplete="username"
-            />
+                autocomplete="username" />
             @error('login_id')
-                <div style="color: #dc2626; font-size: 0.78rem; margin-top: 0.35rem; font-weight: 500;">
-                    {{ $message }}
-                </div>
+            <div style="color: #dc2626; font-size: 0.78rem; margin-top: 0.35rem; font-weight: 500;">
+                {{ $message }}
+            </div>
             @enderror
         </div>
 
@@ -46,12 +45,11 @@
                 class="sil-input"
                 placeholder="Masukkan password"
                 required
-                autocomplete="current-password"
-            />
+                autocomplete="current-password" />
             @error('password')
-                <div style="color: #dc2626; font-size: 0.78rem; margin-top: 0.35rem; font-weight: 500;">
-                    {{ $message }}
-                </div>
+            <div style="color: #dc2626; font-size: 0.78rem; margin-top: 0.35rem; font-weight: 500;">
+                {{ $message }}
+            </div>
             @enderror
         </div>
 
@@ -63,9 +61,9 @@
             </label>
 
             @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}" class="forgot-link">
-                    Lupa password?
-                </a>
+            <a href="{{ route('password.request') }}" class="forgot-link">
+                Lupa password?
+            </a>
             @endif
         </div>
 

@@ -40,12 +40,14 @@ Route::group([
 ], function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('karyawan.dashboard');
     Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->name('logout.auth');
+    Route::get('/notifikasi/{id}/baca', [DashboardController::class, 'bacaNotifikasi'])->name('karyawan.notifikasi.baca');
 
     Route::group([
         'prefix' => 'presensi',
     ], function () {
         Route::get('/', [PresensiController::class, 'index'])->name('karyawan.presensi');
         Route::post('/', [PresensiController::class, 'store'])->name('karyawan.presensi.store');
+        Route::get('/cek-lokasi', [PresensiController::class, 'cekLokasi'])->name('karyawan.presensi.cek-lokasi');
 
         Route::group([
             'prefix' => 'history',
@@ -83,6 +85,7 @@ Route::group([
     Route::get('/karyawan/perbarui', [KaryawanController::class, 'edit'])->name('admin.karyawan.edit');
     Route::post('/karyawan/perbarui', [KaryawanController::class, 'updateAdmin'])->name('admin.karyawan.update');
     Route::post('/karyawan/hapus', [KaryawanController::class, 'delete'])->name('admin.karyawan.delete');
+    Route::post('/karyawan/pesan', [KaryawanController::class, 'kirimPesan'])->name('admin.karyawan.pesan');
 
     Route::get('/departemen', [DepartemenController::class, 'index'])->name('admin.departemen');
     Route::post('/departemen/tambah', [DepartemenController::class, 'store'])->name('admin.departemen.store');

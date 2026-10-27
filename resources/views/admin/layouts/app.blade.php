@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light" class="scroll-smooth" :class="{ 'theme-dark': dark }">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" :class="{ 'dark': dark }" :data-theme="dark ? 'dark' : 'light'" x-data="data()" class="scroll-smooth">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,21 +11,29 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+        <script>
+            (function() {
+                try {
+                    var theme = localStorage.getItem('theme');
+                    var dark = localStorage.getItem('dark');
+                    var isDark = theme === 'dark' || dark === 'true' || (!theme && !dark && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    if (isDark) {
+                        document.documentElement.classList.add('dark');
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        document.documentElement.setAttribute('data-theme', 'light');
+                    }
+                } catch (e) {}
+            })();
+        </script>
+        <script src="{{ asset('js/init-alpine.js') }}"></script>
+
         <!-- Scripts -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-        <script>
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-                document.documentElement.setAttribute('data-theme', 'dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-        </script>
 
         <style>
             :root {
@@ -150,6 +158,8 @@
             .btn-neutral { background: #374151 !important; border-color: #1f2937 !important; color: white !important; }
             .btn-error { background: #ef4444 !important; border-color: #dc2626 !important; color: white !important; }
             .btn-error:hover { background: #dc2626 !important; }
+            .btn-info { background: #0ea5e9 !important; border-color: #0284c7 !important; color: white !important; font-weight: 600; }
+            .btn-info:hover { background: #0284c7 !important; }
 
             /* ===== FORMS ===== */
             .input, .textarea, .select, .input-bordered, .textarea-bordered, .select-bordered {
@@ -212,15 +222,27 @@
                 box-shadow: 0 4px 20px rgba(22,163,74,0.08);
                 padding: 1.25rem 1.5rem;
                 display: flex; align-items: center; gap: 1rem;
-                transition: all 0.2s;
+                transition: all 0.2s ease;
+                text-decoration: none;
+                color: inherit;
+                cursor: pointer;
             }
-            .sil-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(22,163,74,0.15); }
+            .sil-stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 28px rgba(22,163,74,0.18);
+                text-decoration: none;
+                color: inherit;
+            }
             .sil-stat-card .icon-wrap {
                 background: linear-gradient(135deg, #fef9c3, #fef08a);
                 color: var(--sil-green-dark); border-radius: 0.75rem;
                 width: 3.5rem; height: 3.5rem;
                 display: flex; align-items: center; justify-content: center;
                 font-size: 1.75rem; flex-shrink: 0;
+                transition: transform 0.2s ease;
+            }
+            .sil-stat-card:hover .icon-wrap {
+                transform: scale(1.08);
             }
             .sil-stat-card .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--sil-green-dark); }
             .sil-stat-card .stat-label { font-size: 0.8rem; color: #6b7280; font-weight: 500; margin-top: 0.1rem; }
@@ -309,8 +331,11 @@
             html.dark .sil-navbar { background: linear-gradient(135deg, #064e3b, #065f46); border-bottom-color: #1e293b; box-shadow: 0 4px 24px rgba(0,0,0,0.5); }
             html.dark .sil-header { background: #1e293b; color: #f8fafc; border-bottom: 1px solid rgba(255,255,255,0.05); }
             html.dark .sil-card, html.dark .sil-stat-card, html.dark .modal-box { background: #1e293b; border-color: rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+            html.dark .sil-table-wrapper { background: #1e293b; border-color: rgba(255,255,255,0.08); box-shadow: 0 6px 28px rgba(0,0,0,0.3); }
             html.dark .sil-stat-card .stat-value { color: #f8fafc; }
+            html.dark .sil-stat-card .stat-label { color: #94a3b8; }
             html.dark .sil-stat-card .icon-wrap { background: #064e3b; color: #86efac; }
+            html.dark .sil-header h2 { color: #86efac; }
             html.dark .table { background: #1e293b !important; border-color: rgba(255,255,255,0.05) !important; }
             html.dark .table thead tr th, html.dark .table thead th { background: #0f172a !important; color: #cbd5e1 !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
             html.dark .table tbody tr { background: #1e293b !important; border-bottom-color: rgba(255,255,255,0.02) !important; }
@@ -325,7 +350,7 @@
             html.dark .sil-user-btn { background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1); }
         </style>
     </head>
-    <body class="font-sans antialiased" x-data="data()">
+    <body class="font-sans antialiased">
         <div class="min-h-screen">
             @include('admin.layouts.navigation')
 
@@ -345,6 +370,5 @@
         </div>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="{{ asset('js/init-alpine.js') }}"></script>
     </body>
 </html>

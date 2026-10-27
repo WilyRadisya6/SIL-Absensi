@@ -154,78 +154,50 @@
                 </li> --}}
 
                 <!-- notifications -->
+                @php
+                    $unreadNotifications = Auth::guard('karyawan')->user()->unreadNotifications;
+                @endphp
                 <li class="relative flex items-center pr-2">
                     <p class="transform-dropdown-show hidden"></p>
-                    <a href="javascript:;" class="ease-nav-brand block p-0 text-sm text-white transition-all" dropdown-trigger aria-expanded="false">
-                        <i class="ri-notification-3-fill cursor-pointer"></i>
+                    <a href="javascript:;" class="ease-nav-brand block p-0 text-sm text-white transition-all relative" dropdown-trigger aria-expanded="false">
+                        <i class="ri-notification-3-fill cursor-pointer text-lg"></i>
+                        @if($unreadNotifications->count() > 0)
+                            <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                                {{ $unreadNotifications->count() }}
+                            </span>
+                        @endif
                     </a>
 
-                    <ul dropdown-menu class="transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease lg:shadow-3xl duration-250 min-w-44 before:text-5.5 dark:shadow-dark-xl dark:bg-slate-850 pointer-events-none absolute right-0 top-0 z-50 origin-top list-none rounded-lg border-0 border-solid border-transparent bg-white bg-clip-padding px-2 py-4 text-left text-sm text-slate-500 opacity-0 transition-all before:absolute before:left-auto before:right-2 before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-mr-6 before:sm:right-8 lg:absolute lg:left-auto lg:right-0 lg:mt-2 lg:block lg:cursor-pointer">
-                        <!-- add show class on dropdown open js -->
+                    <ul dropdown-menu class="transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease lg:shadow-3xl duration-250 min-w-64 before:text-5.5 dark:shadow-dark-xl dark:bg-slate-850 pointer-events-none absolute right-0 top-0 z-50 origin-top list-none rounded-lg border-0 border-solid border-transparent bg-white bg-clip-padding px-2 py-4 text-left text-sm text-slate-500 opacity-0 transition-all before:absolute before:left-auto before:right-2 before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-mr-6 before:sm:right-8 lg:absolute lg:left-auto lg:right-0 lg:mt-2 lg:block lg:cursor-pointer max-h-96 overflow-y-auto">
+                        @forelse($unreadNotifications as $notification)
                         <li class="relative mb-2">
-                            <a class="ease py-1.2 clear-both block w-full whitespace-nowrap rounded-lg bg-transparent px-4 duration-300 hover:bg-gray-200 hover:text-slate-700 dark:hover:bg-slate-900 lg:transition-colors" href="javascript:;">
+                            <a class="ease py-1.2 clear-both block w-full whitespace-nowrap rounded-lg bg-transparent px-4 duration-300 hover:bg-gray-200 hover:text-slate-700 dark:hover:bg-slate-900 lg:transition-colors" href="{{ route('karyawan.notifikasi.baca', $notification->id) }}">
                                 <div class="flex py-1">
                                     <div class="my-auto">
-                                        <img src="{{ asset("img/team-2.jpg") }}" class="mr-4 inline-flex h-9 w-9 max-w-none items-center justify-center rounded-xl text-sm text-white" />
+                                        <div class="mr-4 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tl from-green-600 to-green-400 text-white">
+                                            <i class="ri-message-3-fill text-lg"></i>
+                                        </div>
                                     </div>
-                                    <div class="flex flex-col justify-center">
-                                        <h6 class="mb-1 text-sm font-normal leading-normal dark:text-white"><span class="font-semibold">New message</span> from Laur</h6>
-                                        <p class="mb-0 text-xs leading-tight text-slate-400 dark:text-white/80">
+                                    <div class="flex flex-col justify-center whitespace-normal w-full overflow-hidden">
+                                        <h6 class="mb-1 text-sm font-normal leading-tight dark:text-white truncate"><span class="font-semibold">{{ $notification->data['judul'] }}</span></h6>
+                                        <p class="mb-1 text-xs leading-tight text-slate-500 dark:text-white/80 line-clamp-2" style="white-space: normal;">
+                                            {{ $notification->data['pesan'] }}
+                                        </p>
+                                        <p class="mb-0 text-[10px] leading-tight text-slate-400 dark:text-white/60 mt-1">
                                             <i class="ri-time-fill mr-1"></i>
-                                            13 minutes ago
+                                            {{ $notification->created_at->diffForHumans() }} dari {{ $notification->data['pengirim'] ?? 'Admin' }}
                                         </p>
                                     </div>
                                 </div>
                             </a>
                         </li>
-
-                        <li class="relative mb-2">
-                            <a class="ease py-1.2 clear-both block w-full whitespace-nowrap rounded-lg px-4 transition-colors duration-300 hover:bg-gray-200 hover:text-slate-700 dark:hover:bg-slate-900" href="javascript:;">
-                                <div class="flex py-1">
-                                    <div class="my-auto">
-                                        <img src="{{ asset("img/small-logos/logo-spotify.svg") }}" class="dark:from-slate-750 dark:to-gray-850 mr-4 inline-flex h-9 w-9 max-w-none items-center justify-center rounded-xl bg-gradient-to-tl from-zinc-800 to-zinc-700 text-sm text-white dark:bg-gradient-to-tl" />
-                                    </div>
-                                    <div class="flex flex-col justify-center">
-                                        <h6 class="mb-1 text-sm font-normal leading-normal dark:text-white"><span class="font-semibold">New album</span> by Travis Scott</h6>
-                                        <p class="mb-0 text-xs leading-tight text-slate-400 dark:text-white/80">
-                                            <i class="ri-time-fill mr-1"></i>
-                                            1 day
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-
+                        @empty
                         <li class="relative">
-                            <a class="ease py-1.2 clear-both block w-full whitespace-nowrap rounded-lg px-4 transition-colors duration-300 hover:bg-gray-200 hover:text-slate-700 dark:hover:bg-slate-900" href="javascript:;">
-                                <div class="flex py-1">
-                                    <div class="ease-nav-brand my-auto mr-4 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tl from-slate-600 to-slate-300 text-sm text-white transition-all duration-200">
-                                        <svg width="12px" height="12px" viewBox="0 0 43 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                            <title>credit-card</title>
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-2169.000000, -745.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(453.000000, 454.000000)">
-                                                            <path class="color-background" d="M43,10.7482083 L43,3.58333333 C43,1.60354167 41.3964583,0 39.4166667,0 L3.58333333,0 C1.60354167,0 0,1.60354167 0,3.58333333 L0,10.7482083 L43,10.7482083 Z" opacity="0.593633743"></path>
-                                                            <path class="color-background" d="M0,16.125 L0,32.25 C0,34.2297917 1.60354167,35.8333333 3.58333333,35.8333333 L39.4166667,35.8333333 C41.3964583,35.8333333 43,34.2297917 43,32.25 L43,16.125 L0,16.125 Z M19.7083333,26.875 L7.16666667,26.875 L7.16666667,23.2916667 L19.7083333,23.2916667 L19.7083333,26.875 Z M35.8333333,26.875 L28.6666667,26.875 L28.6666667,23.2916667 L35.8333333,23.2916667 L35.8333333,26.875 Z">
-                                                            </path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                    <div class="flex flex-col justify-center">
-                                        <h6 class="mb-1 text-sm font-normal leading-normal dark:text-white">Payment successfully
-                                            completed</h6>
-                                        <p class="mb-0 text-xs leading-tight text-slate-400 dark:text-white/80">
-                                            <i class="ri-time-fill mr-1"></i>
-                                            2 days
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
+                            <div class="py-4 text-center text-sm text-slate-400">
+                                Tidak ada pemberitahuan baru.
+                            </div>
                         </li>
+                        @endforelse
                     </ul>
                 </li>
             </ul>

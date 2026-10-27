@@ -102,7 +102,7 @@
                             </td>
                             <td class="text-slate-500 dark:text-slate-300">{{ $item->keterangan }}</td>
                             <td class="flex justify-center gap-2">
-                                @if ($item->status_approved == 1)
+                                @if ($item->status_approved == 0 || $item->status_approved == 1)
                                     <label class="btn btn-warning btn-sm tooltip flex items-center" data-tip="Diterima" onclick="return terima_button('{{ $item->id }}', '{{ $item->nama_karyawan }}', '{{ \Carbon\Carbon::parse($item->tanggal_pengajuan)->format('d-m-Y') }}', 'terima')">
                                         <i class="ri-checkbox-circle-line"></i>
                                     </label>
@@ -130,7 +130,7 @@
                 </tbody>
             </table>
             <div class="mx-3 mb-5">
-                {{ $pengajuan->links() }}
+                {{ $pengajuan->withQueryString()->links() }}
             </div>
         </div>
     </div>

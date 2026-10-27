@@ -19,8 +19,5 @@
 <script src="https://cdn.datatables.net/2.0.2/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 
-{{-- Alphine Init --}}
-<script src="{{ asset('js/init-alpine.js') }}"></script>
-
 {{-- Sweetalert --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

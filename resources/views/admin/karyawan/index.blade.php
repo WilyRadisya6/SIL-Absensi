@@ -34,6 +34,7 @@
                         <th>Nama Lengkap</th>
                         <th>Foto</th>
                         <th>Jabatan</th>
+                        <th>Shift</th>
                         <th>Telepon</th>
                         <th>Email</th>
                         <th>Aksi</th>
@@ -57,9 +58,19 @@
                                 </div>
                             </td>
                             <td class="text-slate-500 dark:text-slate-300">{{ $item->jabatan }}</td>
+                            <td class="text-slate-500 dark:text-slate-300">
+                                @if($item->jenis_shift == 'Non-Shift')
+                                    <span class="badge badge-ghost">{{ $item->jenis_shift }}</span>
+                                @else
+                                    <span class="badge badge-primary">{{ $item->jenis_shift }}</span>
+                                @endif
+                            </td>
                             <td class="text-slate-500 dark:text-slate-300">{{ $item->telepon }}</td>
                             <td class="text-slate-500 dark:text-slate-300">{{ $item->email }}</td>
                             <td>
+                                <label class="btn btn-info btn-sm" onclick="return pesan_button('{{ $item->nik }}', '{{ $item->nama_lengkap }}')">
+                                    <i class="ri-message-3-line text-white"></i>
+                                </label>
                                 <label class="btn btn-warning btn-sm" for="edit_button" onclick="return edit_button('{{ $item->nik }}')">
                                     <i class="ri-pencil-fill"></i>
                                 </label>
@@ -143,6 +154,25 @@
                         </div>
                         <input type="text" name="jabatan" placeholder="Jabatan" class="input input-bordered w-full text-blue-700" value="{{ old("jabatan") }}" required />
                         @error("jabatan")
+                            <div class="label">
+                                <span class="label-text-alt text-sm text-error">{{ $message }}</span>
+                            </div>
+                        @enderror
+                    </label>
+                    <label class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text font-semibold">
+                                <span class="label-text font-semibold">Jenis Shift<span class="text-red-500">*</span></span>
+                            </span>
+                        </div>
+                        <select name="jenis_shift" class="select select-bordered w-full text-blue-700" required>
+                            <option disabled selected>Pilih Shift!</option>
+                            <option value="Non-Shift" @if (old("jenis_shift") == "Non-Shift") selected @endif>Non-Shift</option>
+                            <option value="Shift 1" @if (old("jenis_shift") == "Shift 1") selected @endif>Shift 1</option>
+                            <option value="Shift 2" @if (old("jenis_shift") == "Shift 2") selected @endif>Shift 2</option>
+                            <option value="Shift 3" @if (old("jenis_shift") == "Shift 3") selected @endif>Shift 3</option>
+                        </select>
+                        @error("jenis_shift")
                             <div class="label">
                                 <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                             </div>
@@ -275,6 +305,24 @@
                     </label>
                     <label class="form-control w-full">
                         <div class="label">
+                            <span class="label-text font-semibold">Jenis Shift<span class="text-red-500">*</span></span>
+                            <span class="label-text-alt" id="loading_edit8"></span>
+                        </div>
+                        <select name="jenis_shift" id="jenis_shift_edit" class="select select-bordered w-full text-blue-700" required>
+                            <option disabled>Pilih Shift!</option>
+                            <option value="Non-Shift">Non-Shift</option>
+                            <option value="Shift 1">Shift 1</option>
+                            <option value="Shift 2">Shift 2</option>
+                            <option value="Shift 3">Shift 3</option>
+                        </select>
+                        @error("jenis_shift")
+                            <div class="label">
+                                <span class="label-text-alt text-sm text-error">{{ $message }}</span>
+                            </div>
+                        @enderror
+                    </label>
+                    <label class="form-control w-full">
+                        <div class="label">
                             <span class="label-text font-semibold">Telepon<span class="text-red-500">*</span></span>
                             <span class="label-text-alt" id="loading_edit5"></span>
                         </div>
@@ -318,6 +366,39 @@
         </div>
     </div>
     {{-- Akhir Modal Edit --}}
+
+    {{-- Awal Modal Kirim Pesan --}}
+    <input type="checkbox" id="pesan_modal" class="modal-toggle" />
+    <div class="modal" role="dialog">
+        <div class="modal-box">
+            <div class="mb-3 flex justify-between">
+                <h3 class="text-lg font-bold">Kirim Pesan ke <span id="pesan_nama_karyawan"></span></h3>
+                <label for="pesan_modal" class="cursor-pointer">
+                    <i class="ri-close-large-fill"></i>
+                </label>
+            </div>
+            <div>
+                <form action="{{ route('admin.karyawan.pesan') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="nik" id="pesan_nik_karyawan">
+                    <label class="form-control w-full mb-3">
+                        <div class="label">
+                            <span class="label-text font-semibold">Judul Pesan<span class="text-red-500">*</span></span>
+                        </div>
+                        <input type="text" name="judul" placeholder="Judul Pesan" class="input input-bordered w-full text-blue-700" required />
+                    </label>
+                    <label class="form-control w-full mb-5">
+                        <div class="label">
+                            <span class="label-text font-semibold">Isi Pesan<span class="text-red-500">*</span></span>
+                        </div>
+                        <textarea name="pesan" placeholder="Tulis pesan di sini..." class="textarea textarea-bordered w-full text-blue-700 h-24" required></textarea>
+                    </label>
+                    <button type="submit" class="btn btn-info form-control w-full text-white">Kirim Pesan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{-- Akhir Modal Kirim Pesan --}}
 
     <script>
         function previewImage() {
@@ -378,6 +459,7 @@
             $("#loading_edit5").html(loading);
             $("#loading_edit6").html(loading);
             $("#loading_edit7").html(loading);
+            $("#loading_edit8").html(loading);
 
             $("select[id='departemen_id']").children().remove().end();
 
@@ -395,23 +477,24 @@
                         items.push(val);
                     });
 
-                    $("input[name='nik_lama']").val(items[0]);
-                    $("input[name='nik']").val(items[0]);
-                    $("input[name='nama_lengkap']").val(items[2]);
-                    $("input[name='jabatan']").val(items[4]);
-                    $("input[name='telepon']").val(items[5]);
-                    $("input[name='email']").val(items[6]);
+                    $("input[name='nik_lama']").val(data.nik);
+                    $("input[name='nik']").val(data.nik);
+                    $("input[name='nama_lengkap']").val(data.nama_lengkap);
+                    $("input[name='jabatan']").val(data.jabatan);
+                    $("select[name='jenis_shift']").val(data.jenis_shift);
+                    $("input[name='telepon']").val(data.telepon);
+                    $("input[name='email']").val(data.email);
 
                     const departemen = @json($departemen);
                     let options = '<option disabled>Pilih Departemen!</option>';
                     departemen.forEach(item => {
-                        const isSelected = item.id == items[1] ? 'selected' : '';
+                        const isSelected = item.id == data.departemen_id ? 'selected' : '';
                         options += `<option value="${item.id}" ${isSelected}>${item.nama}</option>`;
                     });
                     $("select[id='departemen_id']").html(options);
 
-                    if (items[3] != null) {
-                        $(".foto-edit-preview").attr("src", `{{ asset('storage/unggah/karyawan/${items[3]}') }}`);
+                    if (data.foto != null) {
+                        $(".foto-edit-preview").attr("src", `{{ asset('storage/unggah/karyawan/') }}/${data.foto}`);
                     } else {
                         $(".foto-edit-preview").attr("src", ``);
                     }
@@ -425,8 +508,15 @@
                     $("#loading_edit5").html(loading);
                     $("#loading_edit6").html(loading);
                     $("#loading_edit7").html(loading);
+                    $("#loading_edit8").html(loading);
                 }
             });
+        }
+
+        function pesan_button(nik, nama) {
+            $("#pesan_nik_karyawan").val(nik);
+            $("#pesan_nama_karyawan").text(nama);
+            $("#pesan_modal").prop("checked", true);
         }
 
         function delete_button(nik, nama) {

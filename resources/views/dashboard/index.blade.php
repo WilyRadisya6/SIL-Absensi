@@ -5,8 +5,8 @@
         <!-- row 1 -->
         <div class="-mx-3 flex flex-wrap lg:gap-y-3">
             <!-- Jam Masuk Kerja -->
-            <div class="mb-6 w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
-                <div class="dark:bg-slate-850 dark:shadow-dark-xl relative flex min-w-0 flex-col break-words rounded-2xl bg-white bg-clip-border shadow-xl">
+            <div class="mb-6 w-full max-w-full px-3 sm:w-1/2 sm:flex-none lg:w-1/3 xl:mb-0">
+                <div class="dark:bg-slate-850 dark:shadow-dark-xl relative flex min-w-0 flex-col break-words rounded-2xl bg-white bg-clip-border shadow-xl h-full">
                     <div class="flex-auto p-4">
                         <div class="-mx-3 flex flex-row">
                             <div class="w-2/3 max-w-full flex-none px-3">
@@ -26,8 +26,8 @@
             </div>
 
             <!-- Jam Pulang Kerja -->
-            <div class="mb-6 w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
-                <div class="dark:bg-slate-850 dark:shadow-dark-xl relative flex min-w-0 flex-col break-words rounded-2xl bg-white bg-clip-border shadow-xl">
+            <div class="mb-6 w-full max-w-full px-3 sm:w-1/2 sm:flex-none lg:w-1/3 xl:mb-0">
+                <div class="dark:bg-slate-850 dark:shadow-dark-xl relative flex min-w-0 flex-col break-words rounded-2xl bg-white bg-clip-border shadow-xl h-full">
                     <div class="flex-auto p-4">
                         <div class="-mx-3 flex flex-row">
                             <div class="w-2/3 max-w-full flex-none px-3">
@@ -46,71 +46,216 @@
                 </div>
             </div>
 
-            <!-- Check In & Check Out Hari Ini (Combined) -->
-            <div class="mb-6 w-full max-w-full px-3 sm:w-full sm:flex-none xl:mb-0 xl:w-1/2">
+            <!-- Tombol Presensi Check In & Check Out -->
+            <div class="mb-6 w-full max-w-full px-3 sm:w-full lg:w-1/3 sm:flex-none xl:mb-0">
                 <div class="dark:bg-slate-850 dark:shadow-dark-xl relative flex min-w-0 flex-col break-words rounded-2xl bg-white bg-clip-border shadow-xl h-full">
-                    <div class="flex-auto p-4">
-                        <div class="-mx-3 flex flex-row divide-x divide-slate-200 dark:divide-slate-700">
-                            <!-- Check In -->
-                            <div class="w-1/2 max-w-full flex-none px-4">
-                                <div class="flex flex-row justify-between items-start">
-                                    <div>
-                                        <p class="mb-0 font-sans text-sm font-semibold uppercase leading-normal dark:text-white dark:opacity-60">Check In Hari Ini</p>
-                                        <h5 class="mb-2 font-bold dark:text-white">{{ $presensiHariIni != null ? date("H:i:s", strtotime($presensiHariIni->jam_masuk)) . " WIB" : "Belum Presensi" }}</h5>
-                                        <p class="mb-0 dark:text-white dark:opacity-60">
-                                            @if ($presensiHariIni != null)
-                                                @if (date("H:i:s", strtotime($presensiHariIni->jam_masuk)) <= date("H:i:s", strtotime($jamKerja->jam_masuk)))
-                                                    <span class="text-sm font-bold leading-normal text-emerald-500 dark:text-emerald-300">Datang Awal</span>
-                                                @elseif (date("H:i:s", strtotime($presensiHariIni->jam_masuk)) > date("H:i:s", strtotime($jamKerja->jam_masuk)))
-                                                    <span class="text-sm font-bold leading-normal text-red-600 dark:text-red-300">Terlambat</span>
-                                                @endif
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="rounded-circle inline-flex h-12 w-12 items-center justify-center bg-gradient-to-tl from-green-600 to-green-400 text-center shadow-sm">
-                                            <i class="ri-login-circle-line text-2xl leading-none text-white"></i>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="flex-auto p-4 flex flex-col justify-between h-full">
+                        <p class="mb-3 font-sans text-xs font-semibold uppercase leading-normal text-slate-500 dark:text-white dark:opacity-60">
+                            Presensi Hari Ini
+                        </p>
+
+                        @if($presensiHariIni == null)
+                            {{-- Belum Absen --}}
+                            <div class="flex-1 flex flex-col items-center justify-center mt-2">
+                                <h5 class="mb-4 font-bold text-slate-600 dark:text-slate-300 text-sm">Anda belum absen masuk</h5>
+                                <button id="btn-checkin" data-jenis="masuk"
+                                    class="checkin-checkout-btn w-full max-w-[220px] mx-auto rounded-xl py-2.5 px-4 flex items-center justify-center gap-2 text-white font-bold transition-all hover:scale-105 active:scale-95 border-0 cursor-pointer"
+                                    style="background: linear-gradient(135deg,#10b981,#059669); box-shadow: 0 4px 12px rgba(16,185,129,.3);">
+                                    <i class="ri-login-circle-line text-lg"></i> 
+                                    <span>Check In Disini</span>
+                                </button>
                             </div>
 
-                            <!-- Check Out -->
-                            <div class="w-1/2 max-w-full flex-none px-4">
-                                <div class="flex flex-row justify-between items-start">
-                                    <div>
-                                        <p class="mb-0 font-sans text-sm font-semibold uppercase leading-normal dark:text-white dark:opacity-60">Check Out Hari Ini</p>
-                                        <h5 class="mb-2 font-bold dark:text-white">{{ $presensiHariIni != null && $presensiHariIni->jam_keluar != null ? date("H:i:s", strtotime($presensiHariIni->jam_keluar)) . " WIB" : "Belum Presensi" }}</h5>
-                                        <p class="mb-0 dark:text-white dark:opacity-60">
-                                            @if ($presensiHariIni != null && $presensiHariIni->jam_keluar != null)
-                                                @if (date("H:i:s", strtotime($presensiHariIni->jam_keluar)) < date("H:i:s", strtotime($jamKerja->jam_pulang)))
-                                                    <span class="text-sm font-bold leading-normal text-red-600 dark:text-red-300">Pulang Awal</span>
-                                                @elseif (date("H:i:s", strtotime($presensiHariIni->jam_keluar)) >= date("H:i:s", strtotime($jamKerja->jam_pulang)))
-                                                    <span class="text-sm font-bold leading-normal text-emerald-500 dark:text-emerald-300">Lembur / Lama</span>
-                                                @endif
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="rounded-circle inline-flex h-12 w-12 items-center justify-center bg-gradient-to-tl from-orange-500 to-yellow-500 text-center shadow-sm">
-                                            <i class="ri-logout-circle-line text-2xl leading-none text-white"></i>
-                                        </div>
-                                    </div>
+                        @elseif($presensiHariIni != null && $presensiHariIni->jam_keluar == null)
+                            {{-- Sudah Check In, Belum Check Out --}}
+                            <div class="mb-3 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-lg p-2.5 px-3">
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">Waktu Masuk</div>
+                                    <div class="text-sm font-bold text-emerald-600 dark:text-emerald-400">{{ date('H:i', strtotime($presensiHariIni->jam_masuk)) }} WIB</div>
+                                </div>
+                                <div class="text-right">
+                                    @if(date('H:i:s', strtotime($presensiHariIni->jam_masuk)) <= date('H:i:s', strtotime($jamKerja->jam_masuk)))
+                                        <span class="text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded">✓ Tepat Waktu</span>
+                                    @else
+                                        <span class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-500/10 px-2 py-1 rounded">⚠ Terlambat</span>
+                                    @endif
                                 </div>
                             </div>
-                        </div>
+                            
+                            <div class="mt-auto pt-2">
+                                <button id="btn-checkout" data-jenis="keluar"
+                                    class="checkin-checkout-btn w-full max-w-[220px] mx-auto rounded-xl py-2.5 px-4 flex items-center justify-center gap-2 text-white font-bold transition-all hover:scale-105 active:scale-95 border-0 cursor-pointer"
+                                    style="background: linear-gradient(135deg,#f97316,#f59e0b); box-shadow: 0 4px 12px rgba(249,115,22,.3);">
+                                    <i class="ri-logout-circle-line text-lg"></i> 
+                                    <span>Check Out Disini</span>
+                                </button>
+                            </div>
+
+                        @else
+                            {{-- Sudah Selesai --}}
+                            <div class="flex-1 flex flex-col justify-center">
+                                <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-lg p-2.5 px-3 mb-2">
+                                    <div>
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">Masuk</div>
+                                        <div class="text-sm font-bold text-emerald-600 dark:text-emerald-400">{{ date('H:i', strtotime($presensiHariIni->jam_masuk)) }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">Pulang</div>
+                                        <div class="text-sm font-bold text-orange-500 dark:text-orange-400">{{ date('H:i', strtotime($presensiHariIni->jam_keluar)) }}</div>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-full">
+                                        <i class="ri-check-double-line text-sm"></i> Presensi Hari Ini Selesai
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
 
+
+        {{-- ========== SCRIPT: GPS Validation + Modal Alasan ========== --}}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+        (function() {
+            const CEK_LOKASI_URL = '{{ route("karyawan.presensi.cek-lokasi") }}';
+            const PRESENSI_URL   = '{{ route("karyawan.presensi") }}';
+
+            function getGPS(callback) {
+                if (!navigator.geolocation) {
+                    Swal.fire('GPS Tidak Didukung', 'Browser Anda tidak mendukung geolocation.', 'error');
+                    return;
+                }
+                Swal.fire({
+                    title: 'Mendapatkan Lokasi...',
+                    html: 'Harap tunggu, sistem sedang membaca GPS Anda.',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        Swal.close();
+                        callback(pos.coords.latitude, pos.coords.longitude);
+                    },
+                    function(err) {
+                        Swal.fire({
+                            title: 'Lokasi Tidak Ditemukan',
+                            html: 'Pastikan GPS aktif dan izin lokasi diberikan pada browser Anda.<br><small class="text-gray-400">Error: ' + err.message + '</small>',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    },
+                    { enableHighAccuracy: true, timeout: 15000 }
+                );
+            }
+
+            function prosesPresensi(jenis, lat, lng) {
+                Swal.fire({
+                    title: 'Memvalidasi Lokasi...',
+                    html: 'Menghitung jarak ke kantor...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                fetch(CEK_LOKASI_URL + '?jenis=' + jenis + '&latitude=' + lat + '&longitude=' + lng, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(r => r.json())
+                .then(function(res) {
+                    if (!res.success || !res.lokasi_valid) {
+                        Swal.fire({
+                            title: 'Di Luar Radius Kantor',
+                            html: res.message +
+                                  '<br><br><div style="display:flex;justify-content:center;gap:2rem;font-size:.85rem;margin-top:.5rem">' +
+                                  '<div style="color:#ef4444"><strong>' + res.jarak + 'm</strong><br>Jarak Anda</div>' +
+                                  '<div style="color:#94a3b8">vs</div>' +
+                                  '<div style="color:#10b981"><strong>' + res.radius + 'm</strong><br>Radius Kantor</div>' +
+                                  '</div>',
+                            icon: 'error',
+                            confirmButtonText: 'Kembali',
+                            confirmButtonColor: '#ef4444'
+                        });
+                        return;
+                    }
+
+                    const needAlasan = (jenis === 'masuk' && res.is_terlambat) ||
+                                       (jenis === 'keluar' && res.is_pulang_cepat);
+
+                    if (needAlasan) {
+                        let title, text;
+                        if (jenis === 'masuk') {
+                            title = 'Anda Terlambat!';
+                            text  = 'Jam masuk: <strong>' + res.jam_masuk.substring(0,5) + '</strong>, jam Anda: <strong>' + res.jam_sekarang.substring(0,5) + '</strong>.<br>Mohon isi alasan keterlambatan:';
+                        } else {
+                            title = 'Pulang Lebih Awal!';
+                            text  = 'Jam pulang: <strong>' + res.jam_pulang.substring(0,5) + '</strong>, jam Anda: <strong>' + res.jam_sekarang.substring(0,5) + '</strong>.<br>Mohon isi alasan pulang cepat:';
+                        }
+
+                        Swal.fire({
+                            title: title,
+                            html: '<p style="font-size:.875rem;color:#6b7280;margin-bottom:.75rem">' + text + '</p>' +
+                                  '<textarea id="swal-alasan" class="swal2-textarea" rows="3" placeholder="Tulis alasan Anda di sini..." style="margin:0;width:100%"></textarea>',
+                            icon: 'warning',
+                            showCancelButton: false,
+                            confirmButtonText: 'Lanjut ke Presensi',
+                            confirmButtonColor: '#10b981',
+                            preConfirm: function() {
+                                const alasan = document.getElementById('swal-alasan').value.trim();
+                                if (!alasan) {
+                                    Swal.showValidationMessage('Alasan wajib diisi!');
+                                    return false;
+                                }
+                                return alasan;
+                            }
+                        }).then(function(result) {
+                            if (result.isConfirmed) {
+                                sessionStorage.setItem('presensi_alasan', result.value);
+                                sessionStorage.setItem('presensi_jenis', jenis);
+                                sessionStorage.setItem('presensi_lokasi', lat + ',' + lng);
+                                window.location.href = PRESENSI_URL + '?jenis=' + jenis;
+                            }
+                        });
+                    } else {
+                        sessionStorage.setItem('presensi_alasan', '');
+                        sessionStorage.setItem('presensi_jenis', jenis);
+                        sessionStorage.setItem('presensi_lokasi', lat + ',' + lng);
+
+                        Swal.fire({
+                            title: 'Lokasi Valid',
+                            html: 'Jarak Anda <strong>' + res.jarak + ' meter</strong> dari kantor.<br>Mengarahkan ke halaman presensi...',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(function() {
+                            window.location.href = PRESENSI_URL + '?jenis=' + jenis;
+                        });
+                    }
+                })
+                .catch(function() {
+                    Swal.fire('Gagal', 'Terjadi kesalahan koneksi. Periksa internet Anda.', 'error');
+                });
+            }
+
+            document.querySelectorAll('.checkin-checkout-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const jenis = this.getAttribute('data-jenis');
+                    getGPS(function(lat, lng) {
+                        prosesPresensi(jenis, lat, lng);
+                    });
+                });
+            });
+        })();
+        </script>
         <!-- row 2 -->
         <div class="-mx-3 mt-6 flex flex-wrap">
             <div class="mb-6 mt-0 w-full max-w-full px-3">
                 <div class="dark:bg-slate-850 dark:shadow-dark-xl border-black-125 relative flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border shadow-xl">
                     <div class="rounded-t-4 mb-0 p-4 pb-0">
                         <div class="flex justify-between">
-                            <h6 class="mb-2 dark:text-white">Riwayat Presensi Bulan <span class="font-bold">{{ date("F") }}</span></h6>
+                            <h6 class="mb-2 dark:text-white">Riwayat Presensi Bulan <span class="font-bold">{{ \Carbon\Carbon::now()->locale('id')->translatedFormat('F') }}</span></h6>
                         </div>
                     </div>
 

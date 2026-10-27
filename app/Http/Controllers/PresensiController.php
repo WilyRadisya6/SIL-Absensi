@@ -23,7 +23,76 @@ class PresensiController extends Controller
             ->where('tanggal_presensi', date('Y-m-d'))
             ->first();
         $lokasiKantor = LokasiKantor::where('is_used', true)->first();
-        return view('dashboard.presensi.index', compact('title', 'presensiKaryawan', 'lokasiKantor'));
+        $user = auth()->guard('karyawan')->user();
+        $jamKerja = \App\Models\KonfigurasiJamKerja::where('nama_shift', $user->jenis_shift ?? 'Non-Shift')->first()
+            ?? (object)['jam_masuk' => '08:00:00', 'jam_pulang' => '17:00:00'];
+        return view('dashboard.presensi.index', compact('title', 'presensiKaryawan', 'lokasiKantor', 'jamKerja'));
+    }
+
+    public function cekLokasi(Request $request)
+    {
+        $jenis = $request->jenis ?? 'masuk'; // masuk atau keluar
+        $latitude = $request->latitude;
+        $longitude = $request->longitude;
+
+        if (!$latitude || !$longitude) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Koordinat GPS tidak diterima. Pastikan GPS aktif dan izin lokasi diberikan.',
+            ]);
+        }
+
+        $lokasiKantor = LokasiKantor::where('is_used', true)->first();
+        if (!$lokasiKantor) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lokasi kantor belum dikonfigurasi. Hubungi administrator.',
+            ]);
+        }
+
+        $jarak = round($this->validation_radius_presensi(
+            $lokasiKantor->latitude,
+            $lokasiKantor->longitude,
+            $latitude,
+            $longitude
+        ), 2);
+
+        if ($jarak > $lokasiKantor->radius) {
+            return response()->json([
+                'success' => false,
+                'lokasi_valid' => false,
+                'jarak' => $jarak,
+                'radius' => $lokasiKantor->radius,
+                'message' => "Anda berada di luar radius kantor. Jarak Anda {$jarak} meter, radius kantor {$lokasiKantor->radius} meter.",
+            ]);
+        }
+
+        $user = auth()->guard('karyawan')->user();
+        $jamKerja = \App\Models\KonfigurasiJamKerja::where('nama_shift', $user->jenis_shift ?? 'Non-Shift')->first()
+            ?? (object)['jam_masuk' => '08:00:00', 'jam_pulang' => '17:00:00'];
+
+        $jamSekarang = Carbon::now()->format('H:i:s');
+        $isTerlambat = false;
+        $isPulangCepat = false;
+
+        if ($jenis === 'masuk') {
+            $isTerlambat = $jamSekarang > $jamKerja->jam_masuk;
+        } elseif ($jenis === 'keluar') {
+            $isPulangCepat = $jamSekarang < $jamKerja->jam_pulang;
+        }
+
+        return response()->json([
+            'success' => true,
+            'lokasi_valid' => true,
+            'jarak' => $jarak,
+            'radius' => $lokasiKantor->radius,
+            'jam_sekarang' => $jamSekarang,
+            'jam_masuk' => $jamKerja->jam_masuk,
+            'jam_pulang' => $jamKerja->jam_pulang,
+            'is_terlambat' => $isTerlambat,
+            'is_pulang_cepat' => $isPulangCepat,
+            'message' => 'Lokasi valid',
+        ]);
     }
 
     public function store(Request $request)
@@ -74,15 +143,21 @@ class PresensiController extends Controller
                     'message' => "Anda sudah melakukan presensi masuk hari ini",
                 ]);
             }
-            
+
+            $user = auth()->guard('karyawan')->user();
+            $jamKerja = \App\Models\KonfigurasiJamKerja::where('nama_shift', $user->jenis_shift ?? 'Non-Shift')->first()
+                ?? (object)['jam_masuk' => '08:00:00', 'jam_pulang' => '17:00:00'];
+            $isTerlambat = $jam > $jamKerja->jam_masuk;
+
             $data = [
-                "nik" => $nik,
+                "nik"              => $nik,
                 "tanggal_presensi" => $tglPresensi,
-                "jam_masuk" => $jam,
-                "foto_masuk" => $fileName,
-                "lokasi_masuk" => $lokasi,
-                "created_at" => Carbon::now(),
-                "updated_at" => Carbon::now(),
+                "jam_masuk"        => $jam,
+                "foto_masuk"       => $fileName,
+                "lokasi_masuk"     => $lokasi,
+                "alasan_terlambat" => $isTerlambat ? ($request->alasan ?? null) : null,
+                "created_at"       => Carbon::now(),
+                "updated_at"       => Carbon::now(),
             ];
             $store = DB::table('presensi')->insert($data);
         } elseif ($jenisPresensi == "keluar") {
@@ -100,11 +175,17 @@ class PresensiController extends Controller
                 ]);
             }
 
+            $user = auth()->guard('karyawan')->user();
+            $jamKerja = \App\Models\KonfigurasiJamKerja::where('nama_shift', $user->jenis_shift ?? 'Non-Shift')->first()
+                ?? (object)['jam_masuk' => '08:00:00', 'jam_pulang' => '17:00:00'];
+            $isPulangCepat = $jam < $jamKerja->jam_pulang;
+
             $data = [
-                "jam_keluar" => $jam,
-                "foto_keluar" => $fileName,
-                "lokasi_keluar" => $lokasi,
-                "updated_at" => Carbon::now(),
+                "jam_keluar"          => $jam,
+                "foto_keluar"         => $fileName,
+                "lokasi_keluar"       => $lokasi,
+                "alasan_pulang_cepat" => $isPulangCepat ? ($request->alasan ?? null) : null,
+                "updated_at"          => Carbon::now(),
             ];
             $store = DB::table('presensi')
                 ->where('nik', auth()->guard('karyawan')->user()->nik)
@@ -223,6 +304,7 @@ class PresensiController extends Controller
                 'tanggal_pengajuan' => $tanggal_pengajuan,
                 'status' => $status,
                 'keterangan' => $keterangan,
+                'status_approved' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
@@ -254,14 +336,19 @@ class PresensiController extends Controller
         $query = DB::table('presensi as p')
             ->join('karyawan as k', 'p.nik', '=', 'k.nik')
             ->join('departemen as d', 'k.departemen_id', '=', 'd.id')
+            ->leftJoin('konfigurasi_jam_kerja as j', 'k.jenis_shift', '=', 'j.nama_shift')
             ->orderBy('k.nama_lengkap', 'asc')
             ->orderBy('d.kode', 'asc')
-            ->select('p.*', 'k.nama_lengkap as nama_karyawan', 'd.nama as nama_departemen');
+            ->select('p.*', 'k.nama_lengkap as nama_karyawan', 'd.nama as nama_departemen', DB::raw("COALESCE(j.jam_masuk, '08:00:00') as batas_jam_masuk"));
 
         if ($request->tanggal_presensi) {
             $query->whereDate('p.tanggal_presensi', $request->tanggal_presensi);
         } else {
             $query->whereDate('p.tanggal_presensi', Carbon::now());
+        }
+
+        if ($request->terlambat) {
+            $query->whereRaw("p.jam_masuk > COALESCE(j.jam_masuk, '08:00:00')");
         }
 
         $monitoring = $query->paginate(10);
@@ -325,10 +412,10 @@ class PresensiController extends Controller
     {
         $title = 'Laporan Presensi Semua Karyawan';
         $bulan = $request->bulan;
-        $jamKerja = \App\Models\KonfigurasiJamKerja::first() ?? (object)['jam_masuk' => '08:00:00', 'jam_pulang' => '16:00:00'];
         $riwayatPresensi = DB::table("presensi as p")
             ->join('karyawan as k', 'k.nik', '=', 'p.nik')
             ->join('departemen as d', 'k.departemen_id', '=', 'd.id')
+            ->leftJoin('konfigurasi_jam_kerja as j', 'k.jenis_shift', '=', 'j.nama_shift')
             ->whereMonth('tanggal_presensi', Carbon::make($bulan)->format('m'))
             ->whereYear('tanggal_presensi', Carbon::make($bulan)->format('Y'))
             ->select(
@@ -337,7 +424,7 @@ class PresensiController extends Controller
                 'k.jabatan as jabatan_karyawan',
                 'd.nama as nama_departemen'
             )
-            ->selectRaw("COUNT(p.nik) as total_kehadiran, SUM(IF (jam_masuk > '{$jamKerja->jam_masuk}',1,0)) as total_terlambat")
+            ->selectRaw("COUNT(p.nik) as total_kehadiran, SUM(IF (p.jam_masuk > j.jam_masuk,1,0)) as total_terlambat")
             ->groupBy(
                 'p.nik',
                 'k.nama_lengkap',
@@ -361,8 +448,6 @@ class PresensiController extends Controller
         $query = DB::table('pengajuan_presensi as p')
             ->join('karyawan as k', 'k.nik', '=', 'p.nik')
             ->join('departemen as d', 'k.departemen_id', '=', 'd.id')
-            ->where('p.tanggal_pengajuan', '>=', Carbon::now()->startOfMonth()->format("Y-m-d"))
-            ->where('p.tanggal_pengajuan', '<=', Carbon::now()->endOfMonth()->format("Y-m-d"))
             ->select('p.*', 'k.nama_lengkap as nama_karyawan', 'd.nama as nama_departemen', 'd.id as id_departemen')
             ->orderBy('p.tanggal_pengajuan', 'asc');
 
@@ -376,16 +461,24 @@ class PresensiController extends Controller
             $query->where('d.id', $request->departemen);
         }
         if ($request->tanggal_awal) {
-            $query->WhereDate('p.tanggal_pengajuan', '>=', Carbon::parse($request->tanggal_awal)->format('Y-m-d'));
+            $query->whereDate('p.tanggal_pengajuan', '>=', Carbon::parse($request->tanggal_awal)->format('Y-m-d'));
+        } else {
+            $query->whereDate('p.tanggal_pengajuan', '>=', Carbon::now()->startOfMonth()->format('Y-m-d'));
         }
         if ($request->tanggal_akhir) {
-            $query->WhereDate('p.tanggal_pengajuan', '<=', Carbon::parse($request->tanggal_akhir)->format('Y-m-d'));
+            $query->whereDate('p.tanggal_pengajuan', '<=', Carbon::parse($request->tanggal_akhir)->format('Y-m-d'));
+        } else {
+            $query->whereDate('p.tanggal_pengajuan', '<=', Carbon::now()->endOfMonth()->format('Y-m-d'));
         }
         if ($request->status) {
             $query->Where('p.status', $request->status);
         }
         if ($request->status_approved) {
-            $query->Where('p.status_approved', $request->status_approved);
+            if ($request->status_approved == 1) {
+                $query->whereIn('p.status_approved', [0, 1]);
+            } else {
+                $query->where('p.status_approved', $request->status_approved);
+            }
         }
 
         $pengajuan = $query->paginate(10);
@@ -395,11 +488,25 @@ class PresensiController extends Controller
 
     public function persetujuanPresensi(Request $request)
     {
+        $pengajuan_data = DB::table('pengajuan_presensi')->where('id', $request->id)->first();
+        if (!$pengajuan_data) {
+            return response()->json(['success' => false, 'message' => 'Data pengajuan tidak ditemukan']);
+        }
+        
+        $karyawan = Karyawan::where('nik', $pengajuan_data->nik)->first();
+        $tanggal = Carbon::parse($pengajuan_data->tanggal_pengajuan)->format('d-m-Y');
+        $tipe = $pengajuan_data->status == 'I' ? 'Izin' : 'Sakit';
+
         if ($request->ajuan == "terima") {
             $pengajuan = DB::table('pengajuan_presensi')->where('id', $request->id)->update([
                 'status_approved' => 2
             ]);
             if ($pengajuan) {
+                if ($karyawan) {
+                    $judul = "Pengajuan $tipe Disetujui";
+                    $pesan = "Pengajuan $tipe Anda untuk tanggal $tanggal telah disetujui oleh Admin.";
+                    $karyawan->notify(new \App\Notifications\PesanAdmin($judul, $pesan, auth()->user()->name));
+                }
                 return response()->json(['success' => true, 'message' => 'Pengajuan presensi telah diterima']);
             } else {
                 return response()->json(['success' => false, 'message' => 'Pengajuan presensi gagal diterima']);
@@ -410,6 +517,11 @@ class PresensiController extends Controller
                 'status_approved' => 3
             ]);
             if ($pengajuan) {
+                if ($karyawan) {
+                    $judul = "Pengajuan $tipe Ditolak";
+                    $pesan = "Maaf, pengajuan $tipe Anda untuk tanggal $tanggal ditolak oleh Admin.";
+                    $karyawan->notify(new \App\Notifications\PesanAdmin($judul, $pesan, auth()->user()->name));
+                }
                 return response()->json(['success' => true, 'message' => 'Pengajuan presensi telah ditolak']);
             } else {
                 return response()->json(['success' => false, 'message' => 'Pengajuan presensi gagal ditolak']);
@@ -420,6 +532,11 @@ class PresensiController extends Controller
                 'status_approved' => 1
             ]);
             if ($pengajuan) {
+                if ($karyawan) {
+                    $judul = "Status Pengajuan Dibatalkan";
+                    $pesan = "Persetujuan $tipe Anda untuk tanggal $tanggal telah dibatalkan (menunggu ulang).";
+                    $karyawan->notify(new \App\Notifications\PesanAdmin($judul, $pesan, auth()->user()->name));
+                }
                 return response()->json(['success' => true, 'message' => 'Pengajuan presensi telah dibatalkan']);
             } else {
                 return response()->json(['success' => false, 'message' => 'Pengajuan presensi gagal dibatalkan']);

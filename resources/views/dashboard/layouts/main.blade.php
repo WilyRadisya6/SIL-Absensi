@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace("_", "-", app()->getLocale()) }}" data-theme="light" class="scroll-smooth" :class="{ 'theme-dark': dark }" x-data="data()">
+<html lang="{{ str_replace("_", "-", app()->getLocale()) }}" :class="{ 'dark': dark }" :data-theme="dark ? 'dark' : 'light'" x-data="data()" class="scroll-smooth">
 
     <head>
         <meta charset="UTF-8">
@@ -10,19 +10,27 @@
         <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/apple-icon.png') }}" />
         <link rel="icon" type="image/png" href="{{ asset('img/favicon.png') }}" />
 
+        <script>
+            (function() {
+                try {
+                    var theme = localStorage.getItem('theme');
+                    var dark = localStorage.getItem('dark');
+                    var isDark = theme === 'dark' || dark === 'true' || (!theme && !dark && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    if (isDark) {
+                        document.documentElement.classList.add('dark');
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        document.documentElement.setAttribute('data-theme', 'light');
+                    }
+                } catch (e) {}
+            })();
+        </script>
+        <script src="{{ asset('js/init-alpine.js') }}"></script>
+
         @include("dashboard.layouts.link")
         @yield("css")
         @vite(["resources/css/app.css", "resources/js/app.js"])
-
-        <script>
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-                document.documentElement.setAttribute('data-theme', 'dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-        </script>
         
         <style>
             /* Fix SweetAlert2 Button Tailwind Conflict */
@@ -101,7 +109,6 @@
 
         @include("dashboard.layouts.script")
         @yield("js")
-        @vite('resources/js/app.js')
     </body>
 
 </html>

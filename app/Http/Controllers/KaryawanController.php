@@ -84,6 +84,7 @@ class KaryawanController extends Controller
             'nama_lengkap' => 'required|string|max:255',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'jabatan' => 'required|string|max:255',
+            'jenis_shift' => 'required|in:Non-Shift,Shift 1,Shift 2,Shift 3',
             'telepon' => 'required|string|max:15',
             'email' => 'required|string|email|max:255|unique:karyawan,email',
             'password' => 'required',
@@ -108,7 +109,7 @@ class KaryawanController extends Controller
 
     public function edit(Request $request)
     {
-        $data = Karyawan::where('nik', $request->nik)->first();
+        $data = Karyawan::where('nik', $request->nik)->select('nik', 'departemen_id', 'nama_lengkap', 'foto', 'jabatan', 'telepon', 'email', 'jenis_shift')->first();
         return $data;
     }
 
@@ -121,6 +122,7 @@ class KaryawanController extends Controller
             'nama_lengkap' => 'required|string|max:255',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'jabatan' => 'required|string|max:255',
+            'jenis_shift' => 'required|in:Non-Shift,Shift 1,Shift 2,Shift 3',
             'telepon' => 'required|string|max:15',
             'email' => ['required', 'email', Rule::unique('karyawan')->ignore($karyawan)],
         ]);
@@ -154,6 +156,24 @@ class KaryawanController extends Controller
             return response()->json(['success' => true, 'message' => 'Data Karyawan Berhasil dihapus']);
         } else {
             return response()->json(['success' => false, 'message' => 'Data Karyawan Gagal dihapus']);
+        }
+    }
+
+    public function kirimPesan(Request $request)
+    {
+        $request->validate([
+            'nik' => 'required|exists:karyawan,nik',
+            'judul' => 'required|string|max:255',
+            'pesan' => 'required|string',
+        ]);
+
+        $karyawan = Karyawan::where('nik', $request->nik)->first();
+        
+        try {
+            $karyawan->notify(new \App\Notifications\PesanAdmin($request->judul, $request->pesan, auth()->user()->name));
+            return redirect()->back()->with('success', 'Pesan berhasil dikirim ke ' . $karyawan->nama_lengkap);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengirim pesan: ' . $e->getMessage());
         }
     }
 }

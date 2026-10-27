@@ -22,23 +22,25 @@
 
                         <form action="{{ route('admin.jam-kerja.update') }}" method="POST">
                             @csrf
-                            <div class="flex flex-col mb-4">
-                                <label for="jam_masuk" class="mb-2 text-sm font-bold text-slate-700 dark:text-white/80">Jam Masuk</label>
-                                <input type="time" name="jam_masuk" id="jam_masuk" value="{{ old('jam_masuk', date('H:i', strtotime($config->jam_masuk))) }}" class="input input-bordered w-full" required>
-                                @error('jam_masuk')
-                                    <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
-                                @enderror
-                            </div>
                             
-                            <div class="flex flex-col mb-6">
-                                <label for="jam_pulang" class="mb-2 text-sm font-bold text-slate-700 dark:text-white/80">Jam Pulang</label>
-                                <input type="time" name="jam_pulang" id="jam_pulang" value="{{ old('jam_pulang', date('H:i', strtotime($config->jam_pulang))) }}" class="input input-bordered w-full" required>
-                                @error('jam_pulang')
-                                    <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
-                                @enderror
+                            @foreach($configs as $config)
+                            <div class="mb-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-slate-800">
+                                <h6 class="mb-3 font-bold text-slate-700 dark:text-white">{{ $config->nama_shift }}</h6>
+                                <div class="flex flex-wrap -mx-2">
+                                    <div class="w-full md:w-1/2 px-2 mb-3 md:mb-0">
+                                        <label for="jam_masuk_{{ $config->id }}" class="mb-2 text-sm font-bold text-slate-700 dark:text-white/80">Jam Masuk</label>
+                                        <input type="time" name="jam_masuk[{{ $config->id }}]" id="jam_masuk_{{ $config->id }}" value="{{ old('jam_masuk.'.$config->id, date('H:i', strtotime($config->jam_masuk))) }}" class="input input-bordered w-full" required>
+                                    </div>
+                                    
+                                    <div class="w-full md:w-1/2 px-2">
+                                        <label for="jam_pulang_{{ $config->id }}" class="mb-2 text-sm font-bold text-slate-700 dark:text-white/80">Jam Pulang</label>
+                                        <input type="time" name="jam_pulang[{{ $config->id }}]" id="jam_pulang_{{ $config->id }}" value="{{ old('jam_pulang.'.$config->id, date('H:i', strtotime($config->jam_pulang))) }}" class="input input-bordered w-full" required>
+                                    </div>
+                                </div>
                             </div>
+                            @endforeach
                             
-                            <button type="submit" class="btn btn-primary w-full text-white">Simpan Konfigurasi</button>
+                            <button type="submit" class="btn btn-primary w-full text-white mt-4">Simpan Konfigurasi</button>
                         </form>
                     </div>
                 </div>

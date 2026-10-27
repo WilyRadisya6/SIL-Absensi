@@ -12,11 +12,26 @@
             <form action="{{ route("admin.monitoring-presensi") }}" method="get" enctype="multipart/form-data" class="my-3">
                 <div class="flex w-full flex-wrap gap-2 md:flex-nowrap">
                     <input type="date" name="tanggal_presensi" placeholder="Pencarian" class="input input-bordered w-full" value="{{ request()->tanggal_presensi ? request()->tanggal_presensi : Carbon\Carbon::now()->format("Y-m-d") }}" />
+                    @if (request()->terlambat)
+                        <input type="hidden" name="terlambat" value="1" />
+                    @endif
                     <button type="submit" class="btn btn-success w-full md:w-14">
                         <i class="ri-search-2-line text-lg text-white"></i>
                     </button>
                 </div>
             </form>
+
+            @if (request()->terlambat)
+                <div class="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-3 shadow-sm">
+                    <div class="flex items-center gap-2 text-sm text-amber-900 dark:text-amber-200">
+                        <i class="ri-time-line text-lg font-bold text-amber-600"></i>
+                        <span>Menampilkan hanya <strong>karyawan yang terlambat</strong> pada tanggal <strong>{{ request()->tanggal_presensi ? Carbon\Carbon::parse(request()->tanggal_presensi)->translatedFormat('d F Y') : Carbon\Carbon::now()->translatedFormat('d F Y') }}</strong></span>
+                    </div>
+                    <a href="{{ route('admin.monitoring-presensi', ['tanggal_presensi' => request('tanggal_presensi', Carbon\Carbon::now()->format('Y-m-d'))]) }}" class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 hover:bg-emerald-200 px-2.5 py-1.5 rounded-lg transition">
+                        <i class="ri-refresh-line"></i> Tampilkan Semua Karyawan
+                    </a>
+                </div>
+            @endif
         </div>
         <div class="w-full overflow-x-auto rounded-md bg-slate-200 px-10">
             <table id="tabelPresensi" class="table mb-4 w-full border-collapse items-center border-gray-200 align-top dark:border-white/40">
@@ -71,10 +86,13 @@
                                 </div>
                             </td>
                             <td class="text-slate-500 dark:text-slate-300">
-                                @if ($item->jam_masuk > Carbon\Carbon::make("08:00:00")->format("H:i:s"))
+                                @php
+                                    $batasWaktu = $item->batas_jam_masuk ?? "08:00:00";
+                                @endphp
+                                @if ($item->jam_masuk > Carbon\Carbon::make($batasWaktu)->format("H:i:s"))
                                     @php
                                         $masuk = Carbon\Carbon::make($item->jam_masuk);
-                                        $batas = Carbon\Carbon::make("08:00:00");
+                                        $batas = Carbon\Carbon::make($batasWaktu);
                                         $diff = $masuk->diff($batas);
                                         if ($diff->format("%h") != 0) {
                                             $selisih = $diff->format("%h jam %I menit");
@@ -92,7 +110,7 @@
                 </tbody>
             </table>
             <div class="mx-3 mb-5">
-                {{ $monitoring->links() }}
+                {{ $monitoring->withQueryString()->links() }}
             </div>
         </div>
     </div>

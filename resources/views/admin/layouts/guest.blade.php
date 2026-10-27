@@ -1,15 +1,36 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" :class="{ 'dark': dark }" :data-theme="dark ? 'dark' : 'light'" x-data="data()">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>Sinkona Indonesia Lestari — Login</title>
+        
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="{{ asset('img/favicon.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+        <script>
+            (function() {
+                try {
+                    var theme = localStorage.getItem('theme');
+                    var dark = localStorage.getItem('dark');
+                    var isDark = theme === 'dark' || dark === 'true' || (!theme && !dark && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    if (isDark) {
+                        document.documentElement.classList.add('dark');
+                        document.documentElement.setAttribute('data-theme', 'dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        document.documentElement.setAttribute('data-theme', 'light');
+                    }
+                } catch (e) {}
+            })();
+        </script>
+        <script src="{{ asset('js/init-alpine.js') }}"></script>
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -244,22 +265,28 @@
             
             /* DARK MODE VARIANTS */
             html.dark body, html.dark .form-panel { background: #0f172a; }
-            html.dark .form-card { background: #1e293b; border-color: rgba(255,255,255,0.05); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+            html.dark .form-card { background: #1e293b; border-color: rgba(255,255,255,0.08); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
             html.dark .brand-panel { background: linear-gradient(160deg, #022c22 0%, #064e3b 45%, #065f46 75%, #064e3b 100%); }
             html.dark .form-card-header h2 { color: #86efac; }
+            html.dark .form-card-header p { color: #94a3b8; }
+            html.dark .form-card-header p strong { color: #86efac !important; }
             html.dark .sil-label { color: #cbd5e1; }
-            html.dark .sil-input { background: #0f172a; border-color: rgba(255,255,255,0.1); color: #f1f5f9; }
+            html.dark .sil-input { background: #0f172a; border-color: rgba(255,255,255,0.12); color: #f1f5f9; }
             html.dark .sil-input:focus { background: #1e293b; border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.3); }
-            html.dark .sil-divider { border-top-color: rgba(255,255,255,0.05); }
+            html.dark .sil-divider { border-top-color: rgba(255,255,255,0.08); }
             html.dark .forgot-link { color: #4ade80; }
             html.dark .forgot-link:hover { color: #22c55e; }
+            html.dark label span { color: #94a3b8 !important; }
             
-            /* Theme Toggle Button */
-            .theme-toggle-btn {
+            .top-controls {
                 position: absolute;
                 top: 1.5rem;
                 right: 2rem;
                 z-index: 100;
+                display: flex;
+                gap: 0.75rem;
+            }
+            .theme-toggle-btn, .back-home-btn {
                 background: rgba(255,255,255,0.2);
                 border: 1px solid rgba(255,255,255,0.3);
                 border-radius: 50%;
@@ -273,29 +300,34 @@
                 transition: all 0.2s ease;
                 box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             }
-            .theme-toggle-btn:hover {
+            .theme-toggle-btn:hover, .back-home-btn:hover {
                 background: rgba(255,255,255,0.5);
                 transform: scale(1.05);
             }
-            html.dark .theme-toggle-btn {
+            html.dark .theme-toggle-btn, html.dark .back-home-btn {
                 background: rgba(0,0,0,0.3);
                 border-color: rgba(255,255,255,0.1);
                 color: #f1f5f9;
             }
-            html.dark .theme-toggle-btn:hover {
+            html.dark .theme-toggle-btn:hover, html.dark .back-home-btn:hover {
                 background: rgba(0,0,0,0.5);
             }
         </style>
     </head>
-    <body x-data="data()">
-        <button @click="toggleTheme()" aria-label="Toggle Dark Mode" class="theme-toggle-btn">
-            <svg x-show="!dark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            <svg x-show="dark" style="display: none;" :style="dark ? 'display: block;' : 'display: none;'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-        </button>
+    <body>
+        <div class="top-controls">
+            <a href="{{ url('/') }}" aria-label="Back to Home" class="back-home-btn" title="Kembali ke Beranda" style="text-decoration: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </a>
+            <button @click="toggleTheme()" aria-label="Toggle Dark Mode" class="theme-toggle-btn" title="Ganti Tema">
+                <svg x-show="!dark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg x-show="dark" style="display: none;" :style="dark ? 'display: block;' : 'display: none;'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+        </div>
         <div class="login-wrapper">
             <!-- Left Brand Panel -->
             <div class="brand-panel">
-                <img src="{{ asset('img/apple-icon.png') }}" alt="Logo" class="brand-logo">
+                <img src="{{ asset('img/favicon.png') }}" alt="Logo" class="brand-logo">
                 <div class="brand-title">Sinkona Indonesia<br>Lestari</div>
                 <div class="brand-subtitle">Platform manajemen kehadiran karyawan PT. Sinkona Indonesia Lestari yang modern, efisien, dan terpercaya.</div>
                 <div class="brand-dots">
@@ -310,8 +342,6 @@
                 </div>
             </div>
         </div>
-        <script src="{{ asset('js/init-alpine.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
     </body>
 </html>
 
